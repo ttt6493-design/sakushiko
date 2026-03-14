@@ -57,6 +57,7 @@ function getSampleQualities(movie?: DmmItem['sampleMovieURL']): SampleQuality[] 
 }
 
 function getHighestQualityLabel(qualities: SampleQuality[]): string {
+  if (qualities.includes('4k')) return '4K';
   if (qualities.includes('720p')) return 'HD';
   if (qualities.includes('644p')) return 'HQ';
   if (qualities.includes('560p')) return 'SD';
@@ -69,6 +70,14 @@ export { getHighestQualityLabel };
 
 function mapDmmItem(item: DmmItem): VideoItem {
   const qualities = getSampleQualities(item.sampleMovieURL);
+
+  // Detect 4K from genre tags
+  const is4k = item.iteminfo.genre?.some((g) =>
+    g.name.includes('4K') || g.name.includes('4k')
+  );
+  if (is4k && !qualities.includes('4k')) {
+    qualities.unshift('4k');
+  }
 
   return {
     content_id: item.content_id,

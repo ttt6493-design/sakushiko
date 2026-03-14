@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 
 const QUALITY_OPTIONS = [
   { value: 'all', label: 'ALL', desc: 'すべて' },
+  { value: '4k', label: '4K', desc: '4K Ultra HD' },
   { value: '720p', label: 'HD', desc: '720x480' },
   { value: '644p', label: 'HQ', desc: '644x414' },
   { value: '560p', label: 'SD', desc: '560x360' },
@@ -37,7 +38,9 @@ export default function QualityFilter() {
             title={opt.desc}
             className={`px-2.5 py-1 rounded text-[10px] font-bold tracking-wide transition-all active:scale-95 ${
               currentQuality === opt.value
-                ? opt.value === '720p'
+                ? opt.value === '4k'
+                  ? 'bg-amber-500 text-white'
+                  : opt.value === '720p'
                   ? 'bg-blue-500 text-white'
                   : 'bg-accent text-white'
                 : 'bg-card text-muted hover:text-foreground'

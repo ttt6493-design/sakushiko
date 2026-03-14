@@ -60,16 +60,19 @@ export default async function HomePage({ searchParams }: PageProps) {
     <div className="max-w-6xl mx-auto px-4 py-4">
       {/* Hero section */}
       <div className="text-center mb-5">
-        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
-          {lang === 'ja' ? (
-            <>サクッとオカズを<span className="text-accent">見つける</span></>
-          ) : (
-            <>Find What You Need. <span className="text-accent">Fast.</span></>
-          )}
+        <h1 className="text-xl sm:text-2xl font-bold text-foreground mb-4">
+          {t.tagline}
         </h1>
-        <p className="text-sm text-muted">
-          {t.subtitle}
-        </p>
+        {isFirstPage && (
+          <div className="max-w-md mx-auto bg-card/50 rounded-lg px-4 py-3 mb-2">
+            <p className="text-xs text-muted leading-relaxed whitespace-pre-line">
+              {t.creatorNote}
+            </p>
+            <p className="text-[10px] text-muted/60 mt-1.5 italic">
+              {t.creatorSign}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Value propositions - only on first page */}

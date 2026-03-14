@@ -3,8 +3,10 @@ export type Locale = 'ja' | 'en';
 export const translations = {
   ja: {
     siteName: 'SAKUSHIKO',
-    tagline: 'サクッとオカズを見つける',
-    subtitle: '無料サンプル動画をカテゴリ別にサクッと検索。気に入ったらそのまま本編へ。',
+    tagline: '世界最高峰のJPAVを、世界一見やすく。',
+    subtitle: '',
+    creatorNote: '広告まみれのサイトにうんざりして、自分で作りました。\nポップアップも詐欺広告もありません。ただ、良いコンテンツを見やすく。',
+    creatorSign: '— 日本のどこかにいる開発者より',
     searchPlaceholder: 'タイトル・女優名・ジャンルで検索...',
     sortNew: '新着順',
     sortPopular: '人気順',
@@ -47,8 +49,10 @@ export const translations = {
   },
   en: {
     siteName: 'SAKUSHIKO',
-    tagline: 'Find What You Need. Fast.',
-    subtitle: 'Browse free official sample videos by category. No ads. No BS. Just content.',
+    tagline: 'The World\'s Finest JPAV. The Cleanest Site.',
+    subtitle: '',
+    creatorNote: 'Tired of ad-infested sites, so I built this.\nNo popups. No scam ads. Just content, made easy to browse.',
+    creatorSign: '— A developer from Japan',
     searchPlaceholder: 'Search by title, actress, genre...',
     sortNew: 'Latest',
     sortPopular: 'Popular',

@@ -1,12 +1,12 @@
 import { VideoItem, SampleQuality } from './types';
 
 const MOCK_QUALITY_PATTERNS: SampleQuality[][] = [
-  ['720p', '644p', '560p', '476p'],  // HD - all qualities
-  ['720p', '560p'],                    // HD
-  ['644p', '560p', '476p'],           // HQ
-  ['560p', '476p'],                    // SD
-  ['476p'],                            // LQ
-  ['720p', '644p', '560p', '476p'],  // HD - all qualities
+  ['4k', '720p', '644p', '560p', '476p'],  // 4K - all qualities
+  ['720p', '644p', '560p', '476p'],          // HD - all qualities
+  ['720p', '560p'],                           // HD
+  ['4k', '720p', '560p'],                    // 4K
+  ['644p', '560p', '476p'],                  // HQ
+  ['560p', '476p'],                           // SD
 ];
 
 const MOCK_TITLES = [

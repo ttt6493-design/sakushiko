@@ -1,4 +1,4 @@
-export type SampleQuality = 'all' | '720p' | '644p' | '560p' | '476p';
+export type SampleQuality = 'all' | '4k' | '720p' | '644p' | '560p' | '476p';
 
 export interface VideoItem {
   content_id: string;
