@@ -23,6 +23,9 @@ export default function Header() {
             <Link href="/?sort=review" className="text-muted hover:text-foreground transition-colors">
               高評価
             </Link>
+            <Link href="/blog" className="text-muted hover:text-foreground transition-colors">
+              Blog
+            </Link>
           </nav>
           <Suspense>
             <LanguageSwitcher />
