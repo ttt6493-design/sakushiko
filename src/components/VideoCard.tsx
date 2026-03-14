@@ -41,6 +41,7 @@ export default function VideoCard({ video, sampleLabel = 'サンプル' }: Video
         {qualityLabel && (
           <span className={`absolute top-1.5 right-1.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded ${
             qualityLabel === '4K' ? 'bg-amber-500/90' :
+            qualityLabel === 'FHD' ? 'bg-emerald-500/90' :
             qualityLabel === 'HD' ? 'bg-blue-500/90' : 'bg-gray-600/90'
           }`}>
             {qualityLabel}

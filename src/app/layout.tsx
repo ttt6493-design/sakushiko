@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Geist } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
+import AgeGate from '@/components/AgeGate';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -53,11 +54,35 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${geistSans.variable} antialiased`}>
+        <AgeGate />
         <Header />
         <main className="min-h-screen">{children}</main>
-        <footer className="border-t border-border py-8 text-center text-xs text-muted">
-          <p>当サイトはDMMアフィリエイトを利用しています。</p>
-          <p className="mt-1">サンプル動画はFANZAが公式に提供する無料コンテンツです。</p>
+        <footer className="border-t border-border py-6 px-4">
+          <div className="max-w-6xl mx-auto text-center space-y-2">
+            {/* PR表示 (ステマ規制法対応) */}
+            <p className="text-xs font-medium text-foreground/70">
+              【PR】当サイトはDMMアフィリエイトを利用した広告サイトです。
+            </p>
+            {/* DMM クレジット表示 */}
+            <p className="text-[10px] text-muted">
+              このサイトの商品情報は
+              <a
+                href="https://affiliate.dmm.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:text-accent-hover"
+              >
+                DMMアフィリエイト
+              </a>
+              のWebサービスを利用して取得しています。
+            </p>
+            <p className="text-[10px] text-muted">
+              サンプル動画はFANZAが公式に提供する無料コンテンツです。
+            </p>
+            <p className="text-[10px] text-muted/50 mt-2">
+              © {new Date().getFullYear()} SAKUSHIKO
+            </p>
+          </div>
         </footer>
       </body>
     </html>

@@ -2,13 +2,14 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
+// Matches FANZA's actual sample video quality tiers
 const QUALITY_OPTIONS = [
   { value: 'all', label: 'ALL', desc: 'すべて' },
-  { value: '4k', label: '4K', desc: '4K Ultra HD' },
-  { value: '720p', label: 'HD', desc: '720x480' },
-  { value: '644p', label: 'HQ', desc: '644x414' },
-  { value: '560p', label: 'SD', desc: '560x360' },
-  { value: '476p', label: 'LQ', desc: '476x306' },
+  { value: '4k', label: '4K', desc: '4K (2160p)' },
+  { value: '1080p', label: 'FHD', desc: 'Full HD (1080p)' },
+  { value: '720p', label: 'HD', desc: 'HD (720p)' },
+  { value: '576p', label: '高画質', desc: '高画質 (576p)' },
+  { value: '432p', label: '中画質', desc: '中画質 (432p)' },
 ] as const;
 
 export default function QualityFilter() {
@@ -40,6 +41,8 @@ export default function QualityFilter() {
               currentQuality === opt.value
                 ? opt.value === '4k'
                   ? 'bg-amber-500 text-white'
+                  : opt.value === '1080p'
+                  ? 'bg-emerald-500 text-white'
                   : opt.value === '720p'
                   ? 'bg-blue-500 text-white'
                   : 'bg-accent text-white'

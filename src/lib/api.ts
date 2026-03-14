@@ -46,22 +46,25 @@ interface DmmItem {
   volume?: string;
 }
 
+// Map API's sampleMovieURL sizes to FANZA's actual player quality tiers
+// FANZA player offers: 4K(2160p), FullHD(1080p), HD(720p), 高画質(576p), 中画質(432p), 中画質(288p), 低画質(144p)
+// API only provides URLs up to 720x480, but we detect higher qualities from genre tags
 function getSampleQualities(movie?: DmmItem['sampleMovieURL']): SampleQuality[] {
   if (!movie) return [];
   const qualities: SampleQuality[] = [];
+  // API provides limited sizes; map them to approximate FANZA tiers
   if (movie.size_720_480) qualities.push('720p');
-  if (movie.size_644_414) qualities.push('644p');
-  if (movie.size_560_360) qualities.push('560p');
-  if (movie.size_476_306) qualities.push('476p');
+  if (movie.size_644_414 || movie.size_560_360) qualities.push('576p');
+  if (movie.size_476_306) qualities.push('432p');
   return qualities;
 }
 
 function getHighestQualityLabel(qualities: SampleQuality[]): string {
   if (qualities.includes('4k')) return '4K';
+  if (qualities.includes('1080p')) return 'FHD';
   if (qualities.includes('720p')) return 'HD';
-  if (qualities.includes('644p')) return 'HQ';
-  if (qualities.includes('560p')) return 'SD';
-  if (qualities.includes('476p')) return 'LQ';
+  if (qualities.includes('576p')) return 'HQ';
+  if (qualities.includes('432p')) return 'SD';
   return '';
 }
 
@@ -71,12 +74,16 @@ export { getHighestQualityLabel };
 function mapDmmItem(item: DmmItem): VideoItem {
   const qualities = getSampleQualities(item.sampleMovieURL);
 
-  // Detect 4K from genre tags
-  const is4k = item.iteminfo.genre?.some((g) =>
-    g.name.includes('4K') || g.name.includes('4k')
-  );
-  if (is4k && !qualities.includes('4k')) {
-    qualities.unshift('4k');
+  // Detect higher qualities from genre tags
+  const genres = item.iteminfo.genre?.map((g) => g.name) || [];
+  const is4k = genres.some((g) => g.includes('4K') || g.includes('4k'));
+  const isHD = genres.some((g) => g.includes('ハイビジョン') || g.includes('HD'));
+
+  if (is4k) {
+    if (!qualities.includes('4k')) qualities.unshift('4k');
+    if (!qualities.includes('1080p')) qualities.splice(1, 0, '1080p');
+  } else if (isHD) {
+    if (!qualities.includes('1080p')) qualities.unshift('1080p');
   }
 
   return {
