@@ -6,8 +6,10 @@ import SortTabs from '@/components/SortTabs';
 import GenreFilter from '@/components/GenreFilter';
 import Pagination from '@/components/Pagination';
 import ValueProps from '@/components/ValueProps';
+import QualityFilter from '@/components/QualityFilter';
 import { isApiConfigured } from '@/lib/config';
 import { getTranslations, type Locale } from '@/lib/i18n';
+import type { SampleQuality } from '@/lib/types';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -46,10 +48,11 @@ export default async function HomePage({ searchParams }: PageProps) {
   const keyword = params.q || '';
   const sort = (params.sort as 'date' | 'rank' | 'review') || 'date';
   const genre = params.genre || '';
+  const quality = (params.quality as SampleQuality) || 'all';
   const page = parseInt(params.page || '1', 10);
 
   const searchKeyword = [genre, keyword].filter(Boolean).join(' ');
-  const result = await fetchVideos({ keyword: searchKeyword || undefined, sort, page });
+  const result = await fetchVideos({ keyword: searchKeyword || undefined, sort, quality, page });
 
   const isFirstPage = page === 1 && !keyword && !genre;
 
@@ -86,11 +89,16 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
       </Suspense>
 
-      {/* Sort + count */}
+      {/* Sort + quality + count */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <Suspense>
-          <SortTabs labels={[t.sortNew, t.sortPopular, t.sortRating]} />
-        </Suspense>
+        <div className="flex flex-wrap items-center gap-3">
+          <Suspense>
+            <SortTabs labels={[t.sortNew, t.sortPopular, t.sortRating]} />
+          </Suspense>
+          <Suspense>
+            <QualityFilter />
+          </Suspense>
+        </div>
         <span className="text-xs text-muted">
           {result.totalCount > 0
             ? t.showing(result.totalCount, (page - 1) * 30 + 1, Math.min(page * 30, result.totalCount))

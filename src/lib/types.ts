@@ -1,9 +1,12 @@
+export type SampleQuality = 'all' | '720p' | '644p' | '560p' | '476p';
+
 export interface VideoItem {
   content_id: string;
   title: string;
   thumbnailUrl: string;
   largeThumbnailUrl: string;
   sampleVideoUrl: string | null;
+  sampleQualities: SampleQuality[]; // available sample qualities
   affiliateUrl: string;
   actresses: string[];
   genres: string[];
@@ -20,6 +23,7 @@ export interface SearchParams {
   sort?: 'date' | 'rank' | 'review';
   genre?: string;
   actress?: string;
+  quality?: SampleQuality;
   page?: number;
   hits?: number;
 }

@@ -1,4 +1,13 @@
-import { VideoItem } from './types';
+import { VideoItem, SampleQuality } from './types';
+
+const MOCK_QUALITY_PATTERNS: SampleQuality[][] = [
+  ['720p', '644p', '560p', '476p'],  // HD - all qualities
+  ['720p', '560p'],                    // HD
+  ['644p', '560p', '476p'],           // HQ
+  ['560p', '476p'],                    // SD
+  ['476p'],                            // LQ
+  ['720p', '644p', '560p', '476p'],  // HD - all qualities
+];
 
 const MOCK_TITLES = [
   '新人専属デビュー作品',
@@ -30,6 +39,7 @@ export const MOCK_VIDEOS: VideoItem[] = Array.from({ length: 30 }, (_, i) => ({
   thumbnailUrl: `https://picsum.photos/seed/fanza${i}/320/180`,
   largeThumbnailUrl: `https://picsum.photos/seed/fanza${i}/800/450`,
   sampleVideoUrl: null,
+  sampleQualities: MOCK_QUALITY_PATTERNS[i % MOCK_QUALITY_PATTERNS.length],
   affiliateUrl: 'https://www.dmm.co.jp/',
   actresses: [MOCK_ACTRESSES[i % MOCK_ACTRESSES.length]],
   genres: [MOCK_GENRES[i % MOCK_GENRES.length], MOCK_GENRES[(i + 3) % MOCK_GENRES.length]],

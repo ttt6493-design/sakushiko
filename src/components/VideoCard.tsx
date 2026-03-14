@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { VideoItem } from '@/lib/types';
+import { getHighestQualityLabel } from '@/lib/api';
 
 interface VideoCardProps {
   video: VideoItem;
@@ -8,6 +9,8 @@ interface VideoCardProps {
 }
 
 export default function VideoCard({ video, sampleLabel = 'サンプル' }: VideoCardProps) {
+  const qualityLabel = getHighestQualityLabel(video.sampleQualities);
+
   return (
     <Link
       href={`/video/${video.content_id}`}
@@ -34,6 +37,14 @@ export default function VideoCard({ video, sampleLabel = 'サンプル' }: Video
         <span className="absolute top-1.5 left-1.5 bg-accent/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
           {sampleLabel}
         </span>
+        {/* Quality badge */}
+        {qualityLabel && (
+          <span className={`absolute top-1.5 right-1.5 text-white text-[9px] font-bold px-1.5 py-0.5 rounded ${
+            qualityLabel === 'HD' ? 'bg-blue-500/90' : 'bg-gray-600/90'
+          }`}>
+            {qualityLabel}
+          </span>
+        )}
         {/* Duration badge */}
         {video.duration && (
           <span className="absolute bottom-1.5 right-1.5 bg-black/75 text-white text-[10px] px-1.5 py-0.5 rounded">

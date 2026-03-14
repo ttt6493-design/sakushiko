@@ -1,4 +1,4 @@
-import { VideoItem, SearchParams, SearchResult } from './types';
+import { VideoItem, SearchParams, SearchResult, SampleQuality } from './types';
 import { API_CONFIG, isApiConfigured } from './config';
 import { MOCK_VIDEOS } from './mock-data';
 
@@ -46,7 +46,30 @@ interface DmmItem {
   volume?: string;
 }
 
+function getSampleQualities(movie?: DmmItem['sampleMovieURL']): SampleQuality[] {
+  if (!movie) return [];
+  const qualities: SampleQuality[] = [];
+  if (movie.size_720_480) qualities.push('720p');
+  if (movie.size_644_414) qualities.push('644p');
+  if (movie.size_560_360) qualities.push('560p');
+  if (movie.size_476_306) qualities.push('476p');
+  return qualities;
+}
+
+function getHighestQualityLabel(qualities: SampleQuality[]): string {
+  if (qualities.includes('720p')) return 'HD';
+  if (qualities.includes('644p')) return 'HQ';
+  if (qualities.includes('560p')) return 'SD';
+  if (qualities.includes('476p')) return 'LQ';
+  return '';
+}
+
+// Export for use in components
+export { getHighestQualityLabel };
+
 function mapDmmItem(item: DmmItem): VideoItem {
+  const qualities = getSampleQualities(item.sampleMovieURL);
+
   return {
     content_id: item.content_id,
     title: item.title,
@@ -58,6 +81,7 @@ function mapDmmItem(item: DmmItem): VideoItem {
       item.sampleMovieURL?.size_560_360 ||
       item.sampleMovieURL?.size_476_306 ||
       null,
+    sampleQualities: qualities,
     affiliateUrl: item.affiliateURLsp || item.affiliateURL || item.URL,
     actresses: item.iteminfo.actress?.map((a) => a.name) || [],
     genres: item.iteminfo.genre?.map((g) => g.name) || [],
@@ -78,7 +102,7 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
     return getMockResult(params, page, hits);
   }
 
-  const offset = (page - 1) * hits + 1; // DMM API is 1-based
+  const offset = (page - 1) * hits + 1;
 
   const queryParams = new URLSearchParams({
     api_id: API_CONFIG.API_ID,
@@ -97,8 +121,7 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
   }
 
   const url = `${API_CONFIG.BASE_URL}/ItemList?${queryParams.toString()}`;
-
-  const response = await fetch(url, { next: { revalidate: 300 } }); // Cache 5min
+  const response = await fetch(url, { next: { revalidate: 300 } });
 
   if (!response.ok) {
     throw new Error(`DMM API error: ${response.status}`);
@@ -106,9 +129,19 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
 
   const data: DmmApiResponse = await response.json();
 
-  const totalCount = data.result.total_count;
+  let items = data.result.items.map(mapDmmItem);
+
+  // Client-side quality filter (API doesn't support this natively)
+  if (params.quality && params.quality !== 'all') {
+    items = items.filter((v) => v.sampleQualities.includes(params.quality!));
+  }
+
+  const totalCount = params.quality && params.quality !== 'all'
+    ? items.length
+    : data.result.total_count;
+
   return {
-    items: data.result.items.map(mapDmmItem),
+    items,
     totalCount,
     page,
     totalPages: Math.ceil(totalCount / hits),
@@ -127,6 +160,10 @@ function getMockResult(params: SearchParams, page: number, hits: number): Search
         v.genres.some((g) => g.toLowerCase().includes(kw)) ||
         v.maker.toLowerCase().includes(kw)
     );
+  }
+
+  if (params.quality && params.quality !== 'all') {
+    filtered = filtered.filter((v) => v.sampleQualities.includes(params.quality!));
   }
 
   if (params.sort === 'review') {
