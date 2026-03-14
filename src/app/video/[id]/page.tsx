@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
-import Image from 'next/image';
 import Link from 'next/link';
 import { fetchVideoById } from '@/lib/api';
+import VideoPlayer from '@/components/VideoPlayer';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -16,6 +16,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: `${video.title} - 無料サンプル動画 | SAKUSHIKO`,
     description: `${video.title}の無料サンプル動画。${video.actresses.join(', ')} 出演 | ${video.maker} | ${video.genres.join(', ')}`,
+    openGraph: {
+      title: video.title,
+      description: `${video.actresses.join(', ')} | ${video.maker}`,
+      type: 'video.other',
+      images: [{ url: video.largeThumbnailUrl, width: 800, height: 450 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: video.title,
+      images: [video.largeThumbnailUrl],
+    },
   };
 }
 
@@ -27,11 +38,35 @@ export default async function VideoDetailPage({ params }: PageProps) {
     notFound();
   }
 
+  // JSON-LD structured data for SEO
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'VideoObject',
+    name: video.title,
+    description: `${video.actresses.join(', ')} | ${video.maker} | ${video.genres.join(', ')}`,
+    thumbnailUrl: video.largeThumbnailUrl,
+    uploadDate: video.date,
+    duration: video.duration,
+    ...(video.reviewAverage !== null && {
+      aggregateRating: {
+        '@type': 'AggregateRating',
+        ratingValue: video.reviewAverage,
+        reviewCount: video.reviewCount,
+        bestRating: 5,
+      },
+    }),
+  };
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-4">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Breadcrumb */}
-      <nav className="flex items-center gap-2 text-xs text-muted mb-4">
-        <Link href="/" className="hover:text-foreground transition-colors">
+      <nav className="flex items-center gap-2 text-xs text-muted mb-4 overflow-x-auto whitespace-nowrap scrollbar-hide">
+        <Link href="/" className="hover:text-foreground transition-colors shrink-0">
           ホーム
         </Link>
         <span>/</span>
@@ -39,7 +74,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
           <>
             <Link
               href={`/?genre=${encodeURIComponent(video.genres[0])}`}
-              className="hover:text-foreground transition-colors"
+              className="hover:text-foreground transition-colors shrink-0"
             >
               {video.genres[0]}
             </Link>
@@ -51,41 +86,11 @@ export default async function VideoDetailPage({ params }: PageProps) {
 
       {/* ===== MAIN: Sample Video Player ===== */}
       <section className="mb-6">
-        <div className="relative aspect-video bg-black rounded-xl overflow-hidden shadow-2xl shadow-black/50">
-          {video.sampleVideoUrl ? (
-            <video
-              src={video.sampleVideoUrl}
-              poster={video.largeThumbnailUrl}
-              controls
-              autoPlay
-              playsInline
-              className="w-full h-full"
-            />
-          ) : (
-            <>
-              <Image
-                src={video.largeThumbnailUrl}
-                alt={video.title}
-                fill
-                className="object-cover opacity-50"
-                priority
-              />
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur flex items-center justify-center mb-3">
-                  <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z" />
-                  </svg>
-                </div>
-                <p className="text-white/70 text-sm font-medium">
-                  サンプル動画を再生
-                </p>
-                <p className="text-white/40 text-xs mt-1">
-                  API接続後に再生可能になります
-                </p>
-              </div>
-            </>
-          )}
-        </div>
+        <VideoPlayer
+          videoUrl={video.sampleVideoUrl}
+          posterUrl={video.largeThumbnailUrl}
+          title={video.title}
+        />
         <p className="text-[10px] text-muted mt-2 text-center">
           ※ FANZAが公式に提供する無料サンプル動画です
         </p>
@@ -141,7 +146,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
           href={video.affiliateUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full bg-accent hover:bg-accent-hover text-white font-bold py-4 rounded-lg transition-all hover:shadow-lg hover:shadow-accent/25 text-base"
+          className="flex items-center justify-center gap-2 w-full bg-accent hover:bg-accent-hover active:scale-[0.98] text-white font-bold py-4 rounded-lg transition-all hover:shadow-lg hover:shadow-accent/25 text-base"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
@@ -170,7 +175,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
                   <Link
                     key={actress}
                     href={`/?q=${encodeURIComponent(actress)}`}
-                    className="text-sm text-accent hover:text-accent-hover transition-colors font-medium"
+                    className="text-sm text-accent hover:text-accent-hover active:opacity-70 transition-colors font-medium"
                   >
                     {actress}
                   </Link>
@@ -204,7 +209,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
 
       {/* ===== Genre Tags ===== */}
       {video.genres.length > 0 && (
-        <section className="mb-6">
+        <section className="mb-20">
           <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
             <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -216,7 +221,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
               <Link
                 key={genre}
                 href={`/?genre=${encodeURIComponent(genre)}`}
-                className="bg-card hover:bg-card-hover text-muted hover:text-foreground text-xs px-3 py-1.5 rounded-full transition-colors"
+                className="bg-card hover:bg-card-hover active:scale-95 text-muted hover:text-foreground text-xs px-3 py-1.5 rounded-full transition-all"
               >
                 {genre}
               </Link>
@@ -225,16 +230,18 @@ export default async function VideoDetailPage({ params }: PageProps) {
         </section>
       )}
 
-      {/* ===== Bottom CTA ===== */}
-      <section className="sticky bottom-0 bg-background/95 backdrop-blur border-t border-border -mx-4 px-4 py-3">
-        <a
-          href={video.affiliateUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 w-full bg-accent hover:bg-accent-hover text-white font-bold py-3 rounded-lg transition-all text-sm"
-        >
-          FANZAで本編を見る・購入する
-        </a>
+      {/* ===== Bottom Sticky CTA ===== */}
+      <section className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border px-4 py-3 safe-bottom">
+        <div className="max-w-4xl mx-auto">
+          <a
+            href={video.affiliateUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full bg-accent hover:bg-accent-hover active:scale-[0.98] text-white font-bold py-3.5 rounded-lg transition-all text-sm"
+          >
+            FANZAで本編を見る・購入する
+          </a>
+        </div>
       </section>
     </div>
   );
