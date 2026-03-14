@@ -41,7 +41,7 @@ export const translations = {
     prop1Title: '広告なし',
     prop1Desc: 'ウザい広告ゼロ。動画だけに集中。',
     prop2Title: 'JPAV',
-    prop2Desc: '圧倒的世界最高品質の日本産AVを高画質で。',
+    prop2Desc: '世界最高品質の日本産AVを高画質で。',
     prop3Title: 'サクッと検索',
     prop3Desc: 'カテゴリ別に秒で見つかる。',
     playVideo: 'サンプル動画を再生',
