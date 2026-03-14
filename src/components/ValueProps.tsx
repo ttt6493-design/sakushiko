@@ -12,7 +12,7 @@ interface ValuePropsProps {
 export default function ValueProps({ t }: ValuePropsProps) {
   const props = [
     { icon: '🚫', title: t.prop1Title, desc: t.prop1Desc },
-    { icon: '🇯🇵', title: t.prop2Title, desc: t.prop2Desc },
+    { icon: '🎬', title: t.prop2Title, desc: t.prop2Desc },
     { icon: '⚡', title: t.prop3Title, desc: t.prop3Desc },
   ];
 

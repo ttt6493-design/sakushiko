@@ -38,8 +38,8 @@ export const translations = {
     // Value props
     prop1Title: '広告なし',
     prop1Desc: 'ウザい広告ゼロ。動画だけに集中。',
-    prop2Title: '世界最高品質',
-    prop2Desc: '日本のAVは世界一のクオリティ。',
+    prop2Title: 'JPAV',
+    prop2Desc: '圧倒的世界最高品質の日本産AVを高画質で。',
     prop3Title: 'サクッと検索',
     prop3Desc: 'カテゴリ別に秒で見つかる。',
     playVideo: 'サンプル動画を再生',
@@ -82,8 +82,8 @@ export const translations = {
     // Value props
     prop1Title: 'Zero Ads',
     prop1Desc: 'No popups. No redirects. Just videos.',
-    prop2Title: 'Premium Quality',
-    prop2Desc: 'Japanese AV — the highest production quality in the world.',
+    prop2Title: 'JPAV',
+    prop2Desc: 'The world\'s finest adult content. Unmatched quality, in HD.',
     prop3Title: 'Instant Search',
     prop3Desc: 'Find exactly what you want in seconds.',
     playVideo: 'Play sample video',
