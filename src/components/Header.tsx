@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { Suspense } from 'react';
+import LanguageSwitcher from './LanguageSwitcher';
 
 export default function Header() {
   return (
@@ -10,17 +12,22 @@ export default function Header() {
             SAKUSHIKO
           </span>
         </Link>
-        <nav className="hidden sm:flex items-center gap-5 text-xs">
-          <Link href="/?sort=date" className="text-muted hover:text-foreground transition-colors">
-            新着
-          </Link>
-          <Link href="/?sort=rank" className="text-muted hover:text-foreground transition-colors">
-            人気
-          </Link>
-          <Link href="/?sort=review" className="text-muted hover:text-foreground transition-colors">
-            高評価
-          </Link>
-        </nav>
+        <div className="flex items-center gap-4">
+          <nav className="hidden sm:flex items-center gap-5 text-xs">
+            <Link href="/?sort=date" className="text-muted hover:text-foreground transition-colors">
+              新着
+            </Link>
+            <Link href="/?sort=rank" className="text-muted hover:text-foreground transition-colors">
+              人気
+            </Link>
+            <Link href="/?sort=review" className="text-muted hover:text-foreground transition-colors">
+              高評価
+            </Link>
+          </nav>
+          <Suspense>
+            <LanguageSwitcher />
+          </Suspense>
+        </div>
       </div>
     </header>
   );

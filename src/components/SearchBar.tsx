@@ -3,7 +3,11 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 
-export default function SearchBar() {
+interface SearchBarProps {
+  placeholder?: string;
+}
+
+export default function SearchBar({ placeholder = '検索...' }: SearchBarProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [keyword, setKeyword] = useState(searchParams.get('q') || '');
@@ -27,8 +31,8 @@ export default function SearchBar() {
           type="text"
           value={keyword}
           onChange={(e) => setKeyword(e.target.value)}
-          placeholder="タイトル・女優名・ジャンルで検索..."
-          className="w-full h-11 pl-11 pr-4 rounded-lg bg-card border border-border text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors text-sm"
+          placeholder={placeholder}
+          className="w-full h-12 pl-11 pr-4 rounded-lg bg-card border border-border text-foreground placeholder:text-muted focus:outline-none focus:border-accent transition-colors text-sm"
         />
         <svg
           className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted"

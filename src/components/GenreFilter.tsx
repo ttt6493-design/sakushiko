@@ -3,7 +3,11 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { GENRES } from '@/lib/genres';
 
-export default function GenreFilter() {
+interface GenreFilterProps {
+  allLabel?: string;
+}
+
+export default function GenreFilter({ allLabel = 'すべて' }: GenreFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentGenre = searchParams.get('genre') || 'all';
@@ -26,14 +30,14 @@ export default function GenreFilter() {
           <button
             key={genre.id}
             onClick={() => handleGenre(genre.id)}
-            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-medium whitespace-nowrap transition-all active:scale-95 ${
               currentGenre === genre.id
                 ? 'bg-accent text-white shadow-lg shadow-accent/25'
                 : 'bg-card text-muted hover:text-foreground hover:bg-card-hover'
             }`}
           >
             <span>{genre.icon}</span>
-            <span>{genre.label}</span>
+            <span>{genre.id === 'all' ? allLabel : genre.label}</span>
           </button>
         ))}
       </div>

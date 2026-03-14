@@ -2,13 +2,18 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { VideoItem } from '@/lib/types';
 
-export default function VideoCard({ video }: { video: VideoItem }) {
+interface VideoCardProps {
+  video: VideoItem;
+  sampleLabel?: string;
+}
+
+export default function VideoCard({ video, sampleLabel = 'サンプル' }: VideoCardProps) {
   return (
     <Link
       href={`/video/${video.content_id}`}
-      className="group block bg-card rounded-lg overflow-hidden hover:bg-card-hover transition-all hover:ring-1 hover:ring-accent/30"
+      className="group block bg-card rounded-lg overflow-hidden hover:bg-card-hover transition-all hover:ring-1 hover:ring-accent/30 active:scale-[0.98]"
     >
-      {/* Thumbnail - larger aspect ratio for video focus */}
+      {/* Thumbnail */}
       <div className="relative aspect-[16/10] overflow-hidden">
         <Image
           src={video.thumbnailUrl}
@@ -27,7 +32,7 @@ export default function VideoCard({ video }: { video: VideoItem }) {
         </div>
         {/* Sample badge */}
         <span className="absolute top-1.5 left-1.5 bg-accent/90 text-white text-[9px] font-bold px-1.5 py-0.5 rounded">
-          サンプル
+          {sampleLabel}
         </span>
         {/* Duration badge */}
         {video.duration && (
@@ -61,7 +66,7 @@ export default function VideoCard({ video }: { video: VideoItem }) {
           )}
         </div>
 
-        {/* Genre tags on card */}
+        {/* Genre tags */}
         <div className="flex flex-wrap gap-1 mt-2">
           {video.genres.slice(0, 3).map((genre) => (
             <span
