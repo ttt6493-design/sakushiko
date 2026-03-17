@@ -118,7 +118,9 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
     return getMockResult(params, page, hits);
   }
 
-  const offset = (page - 1) * hits + 1;
+  // Fetch more than needed to compensate for filtering out videos without samples
+  const fetchHits = Math.min(hits * 3, 100); // Fetch 3x, max 100 (API limit)
+  const offset = (page - 1) * fetchHits + 1;
 
   // Determine floor based on content type filter
   const floor = params.contentType === 'vr' ? 'video' : API_CONFIG.FLOOR;
@@ -129,7 +131,7 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
     site: API_CONFIG.SITE,
     service: API_CONFIG.SERVICE,
     floor,
-    hits: String(hits),
+    hits: String(fetchHits),
     offset: String(offset),
     sort: params.sort || 'rank', // Default: popular
     output: 'json',
@@ -170,11 +172,13 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
     items = items.filter((v) => v.sampleQualities.includes(params.quality!));
   }
 
-  const totalCount = items.length;
+  // Trim to requested page size after all filters
+  const totalCount = data.result.total_count;
+  items = items.slice(0, hits);
 
   return {
     items,
-    totalCount,
+    totalCount: Math.min(totalCount, items.length > 0 ? totalCount : 0),
     page,
     totalPages: Math.ceil(totalCount / hits),
   };
