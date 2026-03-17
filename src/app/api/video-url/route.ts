@@ -1,5 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+// Normalize Japanese quality labels from DMM's unicode escapes
+function normalizeLabel(raw: string): string {
+  // Decode unicode escapes like \u9ad8\u753b\u8cea
+  try {
+    const decoded = JSON.parse(`"${raw}"`);
+    return decoded;
+  } catch {
+    return raw;
+  }
+}
+
 export async function GET(request: NextRequest) {
   const playerUrl = request.nextUrl.searchParams.get('url');
 
@@ -31,8 +42,7 @@ export async function GET(request: NextRequest) {
 
     let html = await response.text();
 
-    // Unescape JSON-escaped slashes so regex can match normally
-    // The HTML contains URLs like: \/\/cc3001.dmm.co.jp\/pv\/...\/xxx.mp4
+    // Unescape JSON-escaped slashes
     html = html.replace(/\\\//g, '/');
 
     // Extract all bitrate options
@@ -42,7 +52,7 @@ export async function GET(request: NextRequest) {
 
     while ((match = bitrateRegex.exec(html)) !== null) {
       qualities.push({
-        label: match[1],
+        label: normalizeLabel(match[1]),
         url: 'https:' + match[2],
       });
     }
