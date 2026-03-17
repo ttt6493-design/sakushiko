@@ -11,7 +11,7 @@ interface SortTabsProps {
 export default function SortTabs({ labels = ['新着順', '人気順', '高評価順'] }: SortTabsProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentSort = searchParams.get('sort') || 'date';
+  const currentSort = searchParams.get('sort') || 'rank';
 
   const handleSort = (sort: string) => {
     const params = new URLSearchParams(searchParams.toString());

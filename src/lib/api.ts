@@ -120,20 +120,29 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
 
   const offset = (page - 1) * hits + 1;
 
+  // Determine floor based on content type filter
+  const floor = params.contentType === 'vr' ? 'video' : API_CONFIG.FLOOR;
+
   const queryParams = new URLSearchParams({
     api_id: API_CONFIG.API_ID,
     affiliate_id: API_CONFIG.AFFILIATE_ID,
     site: API_CONFIG.SITE,
     service: API_CONFIG.SERVICE,
-    floor: API_CONFIG.FLOOR,
+    floor,
     hits: String(hits),
     offset: String(offset),
-    sort: params.sort || 'date',
+    sort: params.sort || 'rank', // Default: popular
     output: 'json',
   });
 
-  if (params.keyword) {
-    queryParams.set('keyword', params.keyword);
+  // Build keyword: combine user keyword + quality keyword for server-side filtering
+  const keywords: string[] = [];
+  if (params.keyword) keywords.push(params.keyword);
+  if (params.quality === '4k') keywords.push('4K');
+  if (params.contentType === 'vr') keywords.push('VR');
+
+  if (keywords.length > 0) {
+    queryParams.set('keyword', keywords.join(' '));
   }
 
   const url = `${API_CONFIG.BASE_URL}/ItemList?${queryParams.toString()}`;
@@ -150,8 +159,14 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
   // Filter out videos without sample videos
   items = items.filter((v) => v.sampleVideoUrl !== null);
 
-  // Client-side quality filter (API doesn't support this natively)
-  if (params.quality && params.quality !== 'all') {
+  // Filter by content type (client-side, to exclude VR from regular listing)
+  if (params.contentType === 'video') {
+    items = items.filter((v) => !v.genres.some((g) => g.includes('VR')));
+  }
+
+  // Client-side quality filter
+  if (params.quality && params.quality !== 'all' && params.quality !== '4k') {
+    // 4K is already filtered server-side via keyword
     items = items.filter((v) => v.sampleQualities.includes(params.quality!));
   }
 

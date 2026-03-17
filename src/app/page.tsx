@@ -7,9 +7,10 @@ import GenreFilter from '@/components/GenreFilter';
 import Pagination from '@/components/Pagination';
 import ValueProps from '@/components/ValueProps';
 import QualityFilter from '@/components/QualityFilter';
+import ContentTypeFilter from '@/components/ContentTypeFilter';
 import { isApiConfigured } from '@/lib/config';
 import { getTranslations, type Locale } from '@/lib/i18n';
-import type { SampleQuality } from '@/lib/types';
+import type { SampleQuality, ContentType } from '@/lib/types';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -46,15 +47,22 @@ export default async function HomePage({ searchParams }: PageProps) {
   const lang = (params.lang as Locale) || 'ja';
   const t = getTranslations(lang);
   const keyword = params.q || '';
-  const sort = (params.sort as 'date' | 'rank' | 'review') || 'date';
+  const sort = (params.sort as 'date' | 'rank' | 'review') || 'rank'; // Default: popular
   const genre = params.genre || '';
   const quality = (params.quality as SampleQuality) || 'all';
+  const contentType = (params.type as ContentType) || 'all';
   const page = parseInt(params.page || '1', 10);
 
   const searchKeyword = [genre, keyword].filter(Boolean).join(' ');
-  const result = await fetchVideos({ keyword: searchKeyword || undefined, sort, quality, page });
+  const result = await fetchVideos({
+    keyword: searchKeyword || undefined,
+    sort,
+    quality,
+    contentType,
+    page,
+  });
 
-  const isFirstPage = page === 1 && !keyword && !genre;
+  const isFirstPage = page === 1 && !keyword && !genre && contentType === 'all' && quality === 'all';
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-4">
@@ -68,9 +76,11 @@ export default async function HomePage({ searchParams }: PageProps) {
             <p className="text-xs text-muted leading-relaxed whitespace-pre-line">
               {t.creatorNote}
             </p>
-            <p className="text-[10px] text-muted/60 mt-1.5 italic">
-              {t.creatorSign}
-            </p>
+            {t.creatorSign && (
+              <p className="text-[10px] text-muted/60 mt-1.5 italic">
+                {t.creatorSign}
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -85,7 +95,13 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
       </Suspense>
 
-      {/* Genre filter */}
+      {/* Content type (All / Video / VR) + Genre filter */}
+      <div className="flex items-center gap-3 mb-4">
+        <Suspense>
+          <ContentTypeFilter />
+        </Suspense>
+      </div>
+
       <Suspense>
         <div className="mb-4">
           <GenreFilter allLabel={t.allGenres} />
