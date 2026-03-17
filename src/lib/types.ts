@@ -1,4 +1,5 @@
-export type SampleQuality = 'all' | '4k' | '1080p' | '720p' | '576p' | '432p';
+// p = product quality (genre tag), s = sample quality (actual playback)
+export type SampleQuality = 'all' | 'p4k' | 'pfhd' | 'phd' | 's4k' | 'sfhd' | 'shd' | '4k' | '1080p' | '720p' | '576p' | '432p';
 
 export interface VideoItem {
   content_id: string;
