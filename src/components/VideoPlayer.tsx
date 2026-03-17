@@ -21,8 +21,8 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
   const [loading, setLoading] = useState(false);
   const [showQuality, setShowQuality] = useState(false);
   const [currentLabel, setCurrentLabel] = useState('');
+  const [fakeLandscape, setFakeLandscape] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   const fetchMp4Url = useCallback(async () => {
     if (!videoUrl) return;
@@ -33,7 +33,6 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
       if (data.url) {
         setMp4Url(data.url);
         setQualities(data.qualities || []);
-        // Set current quality label
         const current = data.qualities?.find((q: VideoQuality) => q.url === data.url);
         setCurrentLabel(current?.label || '');
       }
@@ -44,31 +43,37 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
     }
   }, [videoUrl]);
 
-  const enterFullscreenLandscape = useCallback(async () => {
+  const toggleLandscape = useCallback(async () => {
     const video = videoRef.current;
     if (!video) return;
 
+    // Try native fullscreen + orientation lock first
     try {
-      // Use video element's fullscreen for better mobile support
       if (video.requestFullscreen) {
         await video.requestFullscreen();
-      } else if ((video as any).webkitEnterFullscreen) {
-        // iOS Safari
-        (video as any).webkitEnterFullscreen();
-      } else if ((video as any).webkitRequestFullscreen) {
-        (video as any).webkitRequestFullscreen();
-      }
-
-      // Lock to landscape
-      try {
         await (screen.orientation as any).lock?.('landscape');
-      } catch {
-        // Not supported
+        return;
+      } else if ((video as any).webkitEnterFullscreen) {
+        (video as any).webkitEnterFullscreen();
+        return;
       }
     } catch {
-      // Fullscreen not available
+      // Native approach failed, use CSS rotation fallback
     }
+
+    // CSS rotation fallback - rotate the entire player
+    setFakeLandscape((prev) => !prev);
   }, []);
+
+  // Lock body scroll when in fake landscape mode
+  useEffect(() => {
+    if (fakeLandscape) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [fakeLandscape]);
 
   const handlePlay = async () => {
     setPlaying(true);
@@ -93,7 +98,6 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
     }, 100);
   };
 
-  // Auto-play muted when mp4Url is ready
   useEffect(() => {
     if (mp4Url && videoRef.current) {
       videoRef.current.muted = true;
@@ -104,13 +108,7 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
   if (!videoUrl) {
     return (
       <div className="relative aspect-video bg-black rounded-xl overflow-hidden shadow-2xl shadow-black/50">
-        <Image
-          src={posterUrl}
-          alt={title}
-          fill
-          className="object-cover opacity-50"
-          priority
-        />
+        <Image src={posterUrl} alt={title} fill className="object-cover opacity-50" priority />
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur flex items-center justify-center mb-3">
             <svg className="w-8 h-8 text-white/50 ml-1" fill="currentColor" viewBox="0 0 24 24">
@@ -124,8 +122,43 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
   }
 
   if (playing) {
+    // Fake landscape: fixed fullscreen with CSS rotation
+    if (fakeLandscape) {
+      return (
+        <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center">
+          <div
+            className="relative"
+            style={{
+              width: '100vh',
+              height: '100vw',
+              transform: 'rotate(90deg)',
+            }}
+          >
+            <video
+              ref={videoRef}
+              src={mp4Url || undefined}
+              poster={posterUrl}
+              controls
+              playsInline
+              muted
+              autoPlay
+              className="w-full h-full bg-black"
+            />
+          </div>
+          {/* Close button */}
+          <button
+            onClick={() => setFakeLandscape(false)}
+            className="fixed top-4 right-4 z-[201] bg-black/70 text-white w-10 h-10 rounded-full flex items-center justify-center text-lg"
+            style={{ transform: 'rotate(90deg)' }}
+          >
+            ✕
+          </button>
+        </div>
+      );
+    }
+
     return (
-      <div ref={containerRef} className="bg-black -mx-4 sm:rounded-xl sm:mx-0 overflow-hidden">
+      <div className="bg-black -mx-4 sm:rounded-xl sm:mx-0 overflow-hidden">
         <div className="relative w-full aspect-video">
           {loading && !mp4Url ? (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
@@ -145,7 +178,7 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
                 className="w-full h-full bg-black"
               />
 
-              {/* Quality selector + Fullscreen button overlay */}
+              {/* Controls overlay */}
               <div className="absolute top-0 right-0 z-10 flex items-start gap-1 p-2">
                 {/* Quality button */}
                 {qualities.length > 1 && (
@@ -162,17 +195,13 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
                     </button>
                     {showQuality && (
                       <div className="absolute top-full right-0 mt-1 bg-black/95 backdrop-blur-sm rounded-lg overflow-hidden min-w-[160px] shadow-xl border border-white/10">
-                        <div className="px-3 py-1.5 text-[10px] text-white/40 border-b border-white/10">
-                          画質を選択
-                        </div>
+                        <div className="px-3 py-1.5 text-[10px] text-white/40 border-b border-white/10">画質を選択</div>
                         {qualities.map((q) => (
                           <button
                             key={q.url}
                             onClick={() => switchQuality(q)}
                             className={`flex items-center justify-between w-full text-left text-xs px-3 py-2.5 transition-colors ${
-                              q.url === mp4Url
-                                ? 'text-accent bg-accent/10'
-                                : 'text-white/80 hover:bg-white/10 active:bg-white/20'
+                              q.url === mp4Url ? 'text-accent bg-accent/10' : 'text-white/80 hover:bg-white/10'
                             }`}
                           >
                             <span>{q.label}</span>
@@ -188,9 +217,9 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
                   </div>
                 )}
 
-                {/* Landscape fullscreen button (mobile) */}
+                {/* Landscape fullscreen button (mobile only) */}
                 <button
-                  onClick={enterFullscreenLandscape}
+                  onClick={toggleLandscape}
                   className="sm:hidden bg-black/70 backdrop-blur-sm text-white p-2 rounded-lg hover:bg-black/90 active:scale-95 transition-all"
                   title="横向き全画面"
                 >
@@ -215,13 +244,7 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
       className="relative aspect-video bg-black rounded-xl overflow-hidden shadow-2xl shadow-black/50 cursor-pointer group"
       onClick={handlePlay}
     >
-      <Image
-        src={posterUrl}
-        alt={title}
-        fill
-        className="object-cover group-hover:opacity-80 transition-opacity"
-        priority
-      />
+      <Image src={posterUrl} alt={title} fill className="object-cover group-hover:opacity-80 transition-opacity" priority />
       <div className="absolute inset-0 flex flex-col items-center justify-center">
         <div className="w-20 h-20 rounded-full bg-black/40 backdrop-blur flex items-center justify-center mb-3 group-hover:scale-110 group-hover:bg-accent/60 transition-all">
           <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
