@@ -110,6 +110,26 @@ function mapDmmItem(item: DmmItem): VideoItem {
   };
 }
 
+// Check if a sample video actually has 4K quality by fetching the DMM player page
+async function checkSampleHas4k(cid: string): Promise<boolean> {
+  try {
+    const url = `https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=${cid}/mtype=AhRVShI_/service=litevideo/mode=part/width=720/height=480/affi_id=${API_CONFIG.AFFILIATE_ID}/`;
+
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Referer': 'https://www.dmm.co.jp/',
+      },
+      next: { revalidate: 3600 }, // Cache for 1 hour
+    });
+
+    const html = await response.text();
+    return html.includes('2160p');
+  } catch {
+    return false;
+  }
+}
+
 export async function fetchVideos(params: SearchParams = {}): Promise<SearchResult> {
   const page = params.page || 1;
   const hits = params.hits || API_CONFIG.HITS_PER_PAGE;
@@ -168,8 +188,21 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
 
   // Client-side quality filter
   if (params.quality && params.quality !== 'all' && params.quality !== '4k') {
-    // 4K is already filtered server-side via keyword
     items = items.filter((v) => v.sampleQualities.includes(params.quality!));
+  }
+
+  // For 4K filter: check actual sample quality by fetching DMM player pages
+  if (params.quality === '4k') {
+    const checked = await Promise.all(
+      items.map(async (item) => {
+        // Extract cid from sampleVideoUrl (more reliable than content_id)
+        const cidMatch = item.sampleVideoUrl?.match(/cid=([^/]+)/);
+        const cid = cidMatch?.[1] || item.content_id;
+        const has4k = await checkSampleHas4k(cid);
+        return { item, has4k };
+      })
+    );
+    items = checked.filter((c) => c.has4k).map((c) => c.item);
   }
 
   // Trim to requested page size after all filters
