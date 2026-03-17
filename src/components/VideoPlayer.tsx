@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
 
 interface VideoPlayerProps {
@@ -11,35 +11,6 @@ interface VideoPlayerProps {
 
 export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerProps) {
   const [playing, setPlaying] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const enterFullscreen = useCallback(async () => {
-    const el = containerRef.current;
-    if (!el) return;
-
-    try {
-      if (el.requestFullscreen) {
-        await el.requestFullscreen();
-      } else if ((el as any).webkitRequestFullscreen) {
-        (el as any).webkitRequestFullscreen();
-      }
-
-      // Lock to landscape on mobile
-      try {
-        await (screen.orientation as any).lock?.('landscape');
-      } catch {
-        // Not supported, that's fine
-      }
-    } catch {
-      // Fullscreen not available
-    }
-  }, []);
-
-  const handlePlay = useCallback(() => {
-    setPlaying(true);
-    // Small delay to let iframe render before fullscreen
-    setTimeout(() => enterFullscreen(), 300);
-  }, [enterFullscreen]);
 
   if (!videoUrl) {
     return (
@@ -67,25 +38,30 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
 
   if (playing) {
     return (
-      <div
-        ref={containerRef}
-        className="relative aspect-video bg-black rounded-xl overflow-hidden shadow-2xl shadow-black/50"
-      >
-        <iframe
-          src={videoUrl}
-          className="w-full h-full"
-          allowFullScreen
-          allow="autoplay; fullscreen"
-          title={title}
-        />
-      </div>
+      <>
+        {/* Theater mode: wide dark background, large player */}
+        <div className="bg-black -mx-4 sm:-mx-8 lg:-mx-16">
+          <div className="max-w-5xl mx-auto">
+            {/* Mobile: nearly full width, taller. PC: 16:9 theater */}
+            <div className="relative w-full" style={{ paddingBottom: 'min(56.25%, 80vh)' }}>
+              <iframe
+                src={videoUrl}
+                className="absolute inset-0 w-full h-full"
+                allowFullScreen
+                allow="autoplay; fullscreen"
+                title={title}
+              />
+            </div>
+          </div>
+        </div>
+      </>
     );
   }
 
   return (
     <div
       className="relative aspect-video bg-black rounded-xl overflow-hidden shadow-2xl shadow-black/50 cursor-pointer group"
-      onClick={handlePlay}
+      onClick={() => setPlaying(true)}
     >
       <Image
         src={posterUrl}
