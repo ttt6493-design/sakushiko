@@ -8,57 +8,52 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Fetch the DMM litevideo player page
-    const response = await fetch(playerUrl, {
+    // Extract cid and affi_id from the litevideo URL
+    // Format: https://www.dmm.co.jp/litevideo/-/part/=/cid=XXX/size=720_480/affi_id=YYY/
+    const cidMatch = playerUrl.match(/cid=([^/]+)/);
+    const affiMatch = playerUrl.match(/affi_id=([^/]+)/);
+
+    if (!cidMatch) {
+      return NextResponse.json({ error: 'Could not extract cid' }, { status: 400 });
+    }
+
+    const cid = cidMatch[1];
+    const affiId = affiMatch?.[1] || '';
+
+    // Go directly to the HTML5 player page (skip the intermediate page)
+    const html5Url = `https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=${cid}/mtype=AhRVShI_/service=litevideo/mode=part/width=720/height=480/affi_id=${affiId}/`;
+
+    const response = await fetch(html5Url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Referer': 'https://www.dmm.co.jp/',
       },
     });
 
     if (!response.ok) {
-      return NextResponse.json({ error: 'Failed to fetch player page' }, { status: 502 });
+      return NextResponse.json({ error: 'Failed to fetch player' }, { status: 502 });
     }
 
     const html = await response.text();
 
-    // Find the HTML5 player URL
-    const playerMatch = html.match(/https:\/\/www\.dmm\.co\.jp\/service\/digitalapi[^"]+/);
-    if (!playerMatch) {
-      return NextResponse.json({ error: 'Player URL not found' }, { status: 404 });
-    }
-
-    // Fetch the HTML5 player page to extract MP4 URLs
-    const playerResponse = await fetch(playerMatch[0], {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-      },
-    });
-
-    if (!playerResponse.ok) {
-      return NextResponse.json({ error: 'Failed to fetch HTML5 player' }, { status: 502 });
-    }
-
-    const playerHtml = await playerResponse.text();
-
-    // Extract the main src (highest quality available as default)
-    const mainSrcMatch = playerHtml.match(/"src":"(\/\/cc3001[^"]+\.mp4)"/);
-
-    // Extract all bitrate options
+    // Extract all bitrate options with MP4 URLs
     const bitrateRegex = /"bitrate":"([^"]+)","src":"(\/\/cc3001[^"]+\.mp4)"/g;
     const qualities: Array<{ label: string; url: string }> = [];
     let match;
 
-    while ((match = bitrateRegex.exec(playerHtml)) !== null) {
+    while ((match = bitrateRegex.exec(html)) !== null) {
       qualities.push({
         label: match[1],
         url: 'https:' + match[2],
       });
     }
 
+    // Also get the main src (default quality)
+    const mainSrcMatch = html.match(/"src":"(\/\/cc3001[^"]+\.mp4)"/);
     const mainUrl = mainSrcMatch ? 'https:' + mainSrcMatch[1] : qualities[0]?.url || null;
 
     if (!mainUrl) {
-      return NextResponse.json({ error: 'No MP4 URL found' }, { status: 404 });
+      return NextResponse.json({ error: 'No video URL found' }, { status: 404 });
     }
 
     return NextResponse.json(
