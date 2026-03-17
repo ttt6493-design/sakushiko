@@ -16,8 +16,8 @@ export default function VideoCard({ video, sampleLabel = 'サンプル' }: Video
       href={`/video/${video.content_id}`}
       className="group block bg-card rounded-lg overflow-hidden hover:bg-card-hover transition-all hover:ring-1 hover:ring-accent/30 active:scale-[0.98]"
     >
-      {/* Thumbnail */}
-      <div className="relative aspect-[16/10] overflow-hidden">
+      {/* Thumbnail - tall aspect for portrait jacket images */}
+      <div className="relative aspect-[3/4] overflow-hidden">
         <Image
           src={video.thumbnailUrl}
           alt={video.title}

@@ -147,14 +147,15 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
 
   let items = data.result.items.map(mapDmmItem);
 
+  // Filter out videos without sample videos
+  items = items.filter((v) => v.sampleVideoUrl !== null);
+
   // Client-side quality filter (API doesn't support this natively)
   if (params.quality && params.quality !== 'all') {
     items = items.filter((v) => v.sampleQualities.includes(params.quality!));
   }
 
-  const totalCount = params.quality && params.quality !== 'all'
-    ? items.length
-    : data.result.total_count;
+  const totalCount = items.length;
 
   return {
     items,

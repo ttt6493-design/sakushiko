@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 
 interface VideoPlayerProps {
@@ -11,6 +11,35 @@ interface VideoPlayerProps {
 
 export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerProps) {
   const [playing, setPlaying] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const enterFullscreen = useCallback(async () => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    try {
+      if (el.requestFullscreen) {
+        await el.requestFullscreen();
+      } else if ((el as any).webkitRequestFullscreen) {
+        (el as any).webkitRequestFullscreen();
+      }
+
+      // Lock to landscape on mobile
+      try {
+        await (screen.orientation as any).lock?.('landscape');
+      } catch {
+        // Not supported, that's fine
+      }
+    } catch {
+      // Fullscreen not available
+    }
+  }, []);
+
+  const handlePlay = useCallback(() => {
+    setPlaying(true);
+    // Small delay to let iframe render before fullscreen
+    setTimeout(() => enterFullscreen(), 300);
+  }, [enterFullscreen]);
 
   if (!videoUrl) {
     return (
@@ -24,11 +53,11 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
         />
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <div className="w-20 h-20 rounded-full bg-white/10 backdrop-blur flex items-center justify-center mb-3">
-            <svg className="w-8 h-8 text-white ml-1" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-8 h-8 text-white/50 ml-1" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
-          <p className="text-white/70 text-sm font-medium">
+          <p className="text-white/50 text-sm font-medium">
             サンプル動画なし
           </p>
         </div>
@@ -36,11 +65,12 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
     );
   }
 
-  // DMM API returns player page URLs, not direct MP4s
-  // Use iframe to embed DMM's official player
   if (playing) {
     return (
-      <div className="relative aspect-video bg-black rounded-xl overflow-hidden shadow-2xl shadow-black/50">
+      <div
+        ref={containerRef}
+        className="relative aspect-video bg-black rounded-xl overflow-hidden shadow-2xl shadow-black/50"
+      >
         <iframe
           src={videoUrl}
           className="w-full h-full"
@@ -55,7 +85,7 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
   return (
     <div
       className="relative aspect-video bg-black rounded-xl overflow-hidden shadow-2xl shadow-black/50 cursor-pointer group"
-      onClick={() => setPlaying(true)}
+      onClick={handlePlay}
     >
       <Image
         src={posterUrl}
