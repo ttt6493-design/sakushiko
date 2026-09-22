@@ -2,23 +2,30 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { fetchVideoById } from '@/lib/api';
 import VideoPlayer from '@/components/VideoPlayer';
+import { getTranslations } from '@/lib/i18n';
+import { getLocale } from '@/lib/locale';
 import type { Metadata } from 'next';
 
 interface PageProps {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ [key: string]: string | undefined }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+export async function generateMetadata({ params, searchParams }: PageProps): Promise<Metadata> {
   const { id } = await params;
+  const { lang } = await searchParams;
+  const t = getTranslations(await getLocale(lang));
   const video = await fetchVideoById(id);
-  if (!video) return { title: '動画が見つかりません' };
+  if (!video) return { title: t.notFound };
 
+  const people = video.actresses.join(', ');
   return {
-    title: `${video.title} - 無料サンプル動画 | SAKUSHIKO`,
-    description: `${video.title}の無料サンプル動画。${video.actresses.join(', ')} 出演 | ${video.maker} | ${video.genres.join(', ')}`,
+    // Root layout appends " | SAKUSHIKO" via its title template
+    title: `${video.title} - ${t.freeSampleTitleSuffix}`,
+    description: `${video.title} ${t.freeSampleTitleSuffix}. ${t.starring}: ${people} | ${video.maker} | ${video.genres.join(', ')}`,
     openGraph: {
       title: video.title,
-      description: `${video.actresses.join(', ')} | ${video.maker}`,
+      description: `${people} | ${video.maker}`,
       type: 'video.other',
       images: [{ url: video.largeThumbnailUrl, width: 800, height: 450 }],
     },
@@ -30,8 +37,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
-export default async function VideoDetailPage({ params }: PageProps) {
+export default async function VideoDetailPage({ params, searchParams }: PageProps) {
   const { id } = await params;
+  const { lang } = await searchParams;
+  const t = getTranslations(await getLocale(lang));
   const video = await fetchVideoById(id);
 
   if (!video) {
@@ -67,7 +76,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
       {/* Breadcrumb */}
       <nav className="flex items-center gap-2 text-xs text-muted mb-4 overflow-x-auto whitespace-nowrap scrollbar-hide">
         <Link href="/" className="hover:text-foreground transition-colors shrink-0">
-          ホーム
+          {t.home}
         </Link>
         <span>/</span>
         {video.genres[0] && (
@@ -90,10 +99,17 @@ export default async function VideoDetailPage({ params }: PageProps) {
           videoUrl={video.sampleVideoUrl}
           posterUrl={video.largeThumbnailUrl}
           title={video.title}
+          labels={{
+            play: t.playVideo,
+            noSample: t.noSample,
+            loading: t.loading,
+            loadFailed: t.loadFailed,
+            quality: t.quality,
+            selectQuality: t.selectQuality,
+            landscape: t.landscape,
+          }}
         />
-        <p className="text-[10px] text-muted mt-2 text-center">
-          ※ FANZAが公式に提供する無料サンプル動画です
-        </p>
+        <p className="text-[10px] text-muted mt-2 text-center">{t.sampleNote}</p>
       </section>
 
       {/* ===== Video Title & Quick Info ===== */}
@@ -122,7 +138,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
                 ))}
               </div>
               <span className="text-yellow-400 font-bold">{video.reviewAverage.toFixed(1)}</span>
-              <span className="text-muted text-xs">({video.reviewCount}件)</span>
+              <span className="text-muted text-xs">({video.reviewCount}{t.reviews})</span>
             </div>
           )}
           {video.duration && (
@@ -133,15 +149,13 @@ export default async function VideoDetailPage({ params }: PageProps) {
               {video.duration}
             </span>
           )}
-          <span className="text-muted text-xs">{video.date} 配信</span>
+          <span className="text-muted text-xs">{video.date} {t.delivered}</span>
         </div>
       </section>
 
       {/* ===== CTA: Purchase Section ===== */}
       <section className="bg-gradient-to-r from-accent/10 to-pink-900/10 border border-accent/20 rounded-xl p-5 mb-6">
-        <p className="text-sm text-foreground mb-3 font-medium">
-          サンプルが気に入りましたか？本編をチェック！
-        </p>
+        <p className="text-sm text-foreground mb-3 font-medium">{t.likedIt}</p>
         <a
           href={video.affiliateUrl}
           target="_blank"
@@ -151,11 +165,9 @@ export default async function VideoDetailPage({ params }: PageProps) {
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
-          FANZAで本編を見る
+          {t.watchOnFanza}
         </a>
-        <p className="text-[10px] text-muted mt-2 text-center">
-          FANZAの商品ページへ移動します
-        </p>
+        <p className="text-[10px] text-muted mt-2 text-center">{t.goToFanza}</p>
       </section>
 
       {/* ===== Details ===== */}
@@ -164,12 +176,12 @@ export default async function VideoDetailPage({ params }: PageProps) {
           <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          作品情報
+          {t.infoTitle}
         </h2>
         <div className="bg-card rounded-lg overflow-hidden divide-y divide-border">
           {video.actresses.length > 0 && (
             <div className="flex px-4 py-3">
-              <span className="text-muted text-sm w-20 shrink-0">出演</span>
+              <span className="text-muted text-sm w-20 shrink-0">{t.actress}</span>
               <div className="flex flex-wrap gap-1.5">
                 {video.actresses.map((actress) => (
                   <Link
@@ -185,7 +197,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
           )}
           {video.maker && (
             <div className="flex px-4 py-3">
-              <span className="text-muted text-sm w-20 shrink-0">メーカー</span>
+              <span className="text-muted text-sm w-20 shrink-0">{t.maker}</span>
               <Link
                 href={`/?q=${encodeURIComponent(video.maker)}`}
                 className="text-sm hover:text-accent transition-colors"
@@ -196,12 +208,12 @@ export default async function VideoDetailPage({ params }: PageProps) {
           )}
           {video.series && (
             <div className="flex px-4 py-3">
-              <span className="text-muted text-sm w-20 shrink-0">シリーズ</span>
+              <span className="text-muted text-sm w-20 shrink-0">{t.series}</span>
               <span className="text-sm">{video.series}</span>
             </div>
           )}
           <div className="flex px-4 py-3">
-            <span className="text-muted text-sm w-20 shrink-0">品番</span>
+            <span className="text-muted text-sm w-20 shrink-0">{t.productId}</span>
             <span className="text-sm font-mono">{video.content_id}</span>
           </div>
         </div>
@@ -214,7 +226,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
             <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
             </svg>
-            ジャンル
+            {t.genre}
           </h2>
           <div className="flex flex-wrap gap-2">
             {video.genres.map((genre) => (
@@ -239,7 +251,7 @@ export default async function VideoDetailPage({ params }: PageProps) {
             rel="noopener noreferrer"
             className="flex items-center justify-center gap-2 w-full bg-accent hover:bg-accent-hover active:scale-[0.98] text-white font-bold py-3.5 rounded-lg transition-all text-sm"
           >
-            FANZAで本編を見る・購入する
+            {t.buyOnFanza}
           </a>
         </div>
       </section>

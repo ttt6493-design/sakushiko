@@ -46,6 +46,31 @@ export const translations = {
     prop3Desc: 'カテゴリ別に秒で見つかる。',
     playVideo: 'サンプル動画を再生',
     apiNote: 'API接続後に再生可能になります',
+    // Header / footer
+    blog: 'Blog',
+    prDisclosure: '【PR】当サイトはDMMアフィリエイトを利用した広告サイトです。',
+    creditPrefix: 'このサイトの商品情報は',
+    creditLink: 'DMMアフィリエイト',
+    creditSuffix: 'のWebサービスを利用して取得しています。',
+    // Filters
+    typeAll: 'すべて',
+    typeVideo: '動画',
+    typeVr: 'VR',
+    qualityLabel: '画質:',
+    sampleQualityLabel: 'サンプル画質:',
+    prevPage: '‹ 前',
+    nextPage: '次 ›',
+    // Player
+    noSample: 'サンプル動画なし',
+    loading: '読み込み中...',
+    loadFailed: '読み込みに失敗しました',
+    quality: '画質',
+    selectQuality: '画質を選択',
+    landscape: '横向き全画面',
+    // Detail page
+    notFound: '動画が見つかりません',
+    freeSampleTitleSuffix: '無料サンプル動画',
+    starring: '出演',
   },
   en: {
     siteName: 'SAKUSHIKO',
@@ -92,8 +117,35 @@ export const translations = {
     prop3Desc: 'Find exactly what you want in seconds.',
     playVideo: 'Play sample video',
     apiNote: 'Available after API connection',
+    // Header / footer
+    blog: 'Blog',
+    prDisclosure: '[PR] This site is an advertising site using the DMM affiliate program.',
+    creditPrefix: 'Product data on this site is retrieved via the ',
+    creditLink: 'DMM Affiliate',
+    creditSuffix: ' web service.',
+    // Filters
+    typeAll: 'All',
+    typeVideo: 'Video',
+    typeVr: 'VR',
+    qualityLabel: 'Quality:',
+    sampleQualityLabel: 'Sample quality:',
+    prevPage: '‹ Prev',
+    nextPage: 'Next ›',
+    // Player
+    noSample: 'No sample video',
+    loading: 'Loading...',
+    loadFailed: 'Failed to load',
+    quality: 'Quality',
+    selectQuality: 'Select quality',
+    landscape: 'Landscape fullscreen',
+    // Detail page
+    notFound: 'Video not found',
+    freeSampleTitleSuffix: 'Free Sample Video',
+    starring: 'Starring',
   },
 } as const;
+
+export type Translations = (typeof translations)[Locale];
 
 export function getTranslations(locale: Locale) {
   return translations[locale];

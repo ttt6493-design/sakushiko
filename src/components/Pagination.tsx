@@ -5,9 +5,16 @@ import { useRouter, useSearchParams } from 'next/navigation';
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
+  prevLabel?: string;
+  nextLabel?: string;
 }
 
-export default function Pagination({ currentPage, totalPages }: PaginationProps) {
+export default function Pagination({
+  currentPage,
+  totalPages,
+  prevLabel = '‹ 前',
+  nextLabel = '次 ›',
+}: PaginationProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -34,7 +41,7 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
         disabled={currentPage <= 1}
         className="px-3 py-2 rounded bg-card text-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed text-sm"
       >
-        ‹ 前
+        {prevLabel}
       </button>
 
       {pages.map((p) => (
@@ -56,7 +63,7 @@ export default function Pagination({ currentPage, totalPages }: PaginationProps)
         disabled={currentPage >= totalPages}
         className="px-3 py-2 rounded bg-card text-muted hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed text-sm"
       >
-        次 ›
+        {nextLabel}
       </button>
     </div>
   );

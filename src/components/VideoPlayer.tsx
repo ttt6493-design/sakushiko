@@ -3,10 +3,31 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import Image from 'next/image';
 
+export interface VideoPlayerLabels {
+  play: string;
+  noSample: string;
+  loading: string;
+  loadFailed: string;
+  quality: string;
+  selectQuality: string;
+  landscape: string;
+}
+
+const DEFAULT_LABELS: VideoPlayerLabels = {
+  play: 'サンプル動画を再生',
+  noSample: 'サンプル動画なし',
+  loading: '読み込み中...',
+  loadFailed: '読み込みに失敗しました',
+  quality: '画質',
+  selectQuality: '画質を選択',
+  landscape: '横向き全画面',
+};
+
 interface VideoPlayerProps {
   videoUrl: string | null;
   posterUrl: string;
   title: string;
+  labels?: VideoPlayerLabels;
 }
 
 interface VideoQuality {
@@ -14,7 +35,7 @@ interface VideoQuality {
   url: string;
 }
 
-export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerProps) {
+export default function VideoPlayer({ videoUrl, posterUrl, title, labels = DEFAULT_LABELS }: VideoPlayerProps) {
   const [playing, setPlaying] = useState(false);
   const [mp4Url, setMp4Url] = useState<string | null>(null);
   const [qualities, setQualities] = useState<VideoQuality[]>([]);
@@ -51,10 +72,17 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
     try {
       if (video.requestFullscreen) {
         await video.requestFullscreen();
-        await (screen.orientation as any).lock?.('landscape');
+        // Orientation lock isn't in lib.dom for all targets; feature-detect at runtime
+        const orientation = screen.orientation as ScreenOrientation & {
+          lock?: (type: 'landscape') => Promise<void>;
+        };
+        await orientation.lock?.('landscape');
         return;
-      } else if ((video as any).webkitEnterFullscreen) {
-        (video as any).webkitEnterFullscreen();
+      }
+      // iOS Safari: <video> has a vendor-specific fullscreen entry point
+      const iosVideo = video as HTMLVideoElement & { webkitEnterFullscreen?: () => void };
+      if (iosVideo.webkitEnterFullscreen) {
+        iosVideo.webkitEnterFullscreen();
         return;
       }
     } catch {
@@ -115,7 +143,7 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
               <path d="M8 5v14l11-7z" />
             </svg>
           </div>
-          <p className="text-white/50 text-sm font-medium">サンプル動画なし</p>
+          <p className="text-white/50 text-sm font-medium">{labels.noSample}</p>
         </div>
       </div>
     );
@@ -163,7 +191,7 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
           {loading && !mp4Url ? (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
               <div className="w-10 h-10 border-3 border-white/20 border-t-accent rounded-full animate-spin" />
-              <p className="text-white/50 text-xs ml-3">読み込み中...</p>
+              <p className="text-white/50 text-xs ml-3">{labels.loading}</p>
             </div>
           ) : mp4Url ? (
             <>
@@ -191,11 +219,11 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
-                      {currentLabel || '画質'}
+                      {currentLabel || labels.quality}
                     </button>
                     {showQuality && (
                       <div className="absolute top-full right-0 mt-1 bg-black/95 backdrop-blur-sm rounded-lg overflow-hidden min-w-[160px] shadow-xl border border-white/10">
-                        <div className="px-3 py-1.5 text-[10px] text-white/40 border-b border-white/10">画質を選択</div>
+                        <div className="px-3 py-1.5 text-[10px] text-white/40 border-b border-white/10">{labels.selectQuality}</div>
                         {qualities.map((q) => (
                           <button
                             key={q.url}
@@ -221,7 +249,7 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
                 <button
                   onClick={toggleLandscape}
                   className="sm:hidden bg-black/70 backdrop-blur-sm text-white p-2 rounded-lg hover:bg-black/90 active:scale-95 transition-all"
-                  title="横向き全画面"
+                  title={labels.landscape}
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
@@ -231,7 +259,7 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
             </>
           ) : (
             <div className="absolute inset-0 flex items-center justify-center bg-black">
-              <p className="text-white/50 text-sm">読み込みに失敗しました</p>
+              <p className="text-white/50 text-sm">{labels.loadFailed}</p>
             </div>
           )}
         </div>
@@ -251,7 +279,7 @@ export default function VideoPlayer({ videoUrl, posterUrl, title }: VideoPlayerP
             <path d="M8 5v14l11-7z" />
           </svg>
         </div>
-        <p className="text-white/80 text-sm font-medium">サンプル動画を再生</p>
+        <p className="text-white/80 text-sm font-medium">{labels.play}</p>
       </div>
     </div>
   );

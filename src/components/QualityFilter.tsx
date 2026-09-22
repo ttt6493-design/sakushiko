@@ -17,7 +17,15 @@ const SAMPLE_OPTIONS = [
   { value: 'shd', label: 'HD' },
 ] as const;
 
-export default function QualityFilter() {
+interface QualityFilterProps {
+  qualityLabel?: string;
+  sampleQualityLabel?: string;
+}
+
+export default function QualityFilter({
+  qualityLabel = '画質:',
+  sampleQualityLabel = 'サンプル画質:',
+}: QualityFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const currentQuality = searchParams.get('quality') || 'all';
@@ -50,7 +58,7 @@ export default function QualityFilter() {
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
       {/* Product quality */}
       <div className="flex items-center gap-1.5">
-        <span className="text-[10px] text-muted shrink-0">画質:</span>
+        <span className="text-[10px] text-muted shrink-0">{qualityLabel}</span>
         {PRODUCT_OPTIONS.map((opt) => (
           <button
             key={opt.value}
@@ -64,7 +72,7 @@ export default function QualityFilter() {
 
       {/* Sample quality */}
       <div className="flex items-center gap-1.5">
-        <span className="text-[10px] text-muted shrink-0">サンプル画質:</span>
+        <span className="text-[10px] text-muted shrink-0">{sampleQualityLabel}</span>
         {SAMPLE_OPTIONS.map((opt) => (
           <button
             key={opt.value}

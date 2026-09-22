@@ -1,8 +1,14 @@
 import Link from 'next/link';
 import { Suspense } from 'react';
 import LanguageSwitcher from './LanguageSwitcher';
+import type { Locale, Translations } from '@/lib/i18n';
 
-export default function Header() {
+interface HeaderProps {
+  locale: Locale;
+  t: Translations;
+}
+
+export default function Header({ locale, t }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-[#0a0a12]/95 backdrop-blur-md border-b border-border">
       <div className="max-w-6xl mx-auto px-4 h-12 flex items-center justify-between">
@@ -15,20 +21,20 @@ export default function Header() {
         <div className="flex items-center gap-4">
           <nav className="hidden sm:flex items-center gap-5 text-xs">
             <Link href="/?sort=date" className="text-muted hover:text-foreground transition-colors">
-              新着
+              {t.sortNew}
             </Link>
             <Link href="/?sort=rank" className="text-muted hover:text-foreground transition-colors">
-              人気
+              {t.sortPopular}
             </Link>
             <Link href="/?sort=review" className="text-muted hover:text-foreground transition-colors">
-              高評価
+              {t.sortRating}
             </Link>
             <Link href="/blog" className="text-muted hover:text-foreground transition-colors">
-              Blog
+              {t.blog}
             </Link>
           </nav>
           <Suspense>
-            <LanguageSwitcher />
+            <LanguageSwitcher initialLocale={locale} />
           </Suspense>
         </div>
       </div>

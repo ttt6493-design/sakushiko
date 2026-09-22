@@ -3,6 +3,8 @@ import { Geist } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/Header';
 import AgeGate from '@/components/AgeGate';
+import { getLocale } from '@/lib/locale';
+import { getTranslations } from '@/lib/i18n';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -46,39 +48,40 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Layout can't see searchParams, so this reflects cookie / Accept-Language.
+  // Pages that receive ?lang= resolve their own locale on top of this.
+  const locale = await getLocale();
+  const t = getTranslations(locale);
+
   return (
-    <html lang="ja">
+    <html lang={locale}>
       <body className={`${geistSans.variable} antialiased`}>
         <AgeGate />
-        <Header />
+        <Header locale={locale} t={t} />
         <main className="min-h-screen">{children}</main>
         <footer className="border-t border-border py-6 px-4">
           <div className="max-w-6xl mx-auto text-center space-y-2">
             {/* PR表示 (ステマ規制法対応) */}
-            <p className="text-xs font-medium text-foreground/70">
-              【PR】当サイトはDMMアフィリエイトを利用した広告サイトです。
-            </p>
+            <p className="text-xs font-medium text-foreground/70">{t.prDisclosure}</p>
             {/* DMM クレジット表示 */}
             <p className="text-[10px] text-muted">
-              このサイトの商品情報は
+              {t.creditPrefix}
               <a
                 href="https://affiliate.dmm.com/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-accent hover:text-accent-hover"
               >
-                DMMアフィリエイト
+                {t.creditLink}
               </a>
-              のWebサービスを利用して取得しています。
+              {t.creditSuffix}
             </p>
-            <p className="text-[10px] text-muted">
-              サンプル動画はFANZAが公式に提供する無料コンテンツです。
-            </p>
+            <p className="text-[10px] text-muted">{t.footer2}</p>
             <p className="text-[10px] text-muted/50 mt-2">
               © {new Date().getFullYear()} SAKUSHIKO
             </p>

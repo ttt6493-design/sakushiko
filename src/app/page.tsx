@@ -9,7 +9,8 @@ import ValueProps from '@/components/ValueProps';
 import QualityFilter from '@/components/QualityFilter';
 import ContentTypeFilter from '@/components/ContentTypeFilter';
 import { isApiConfigured } from '@/lib/config';
-import { getTranslations, type Locale } from '@/lib/i18n';
+import { getTranslations } from '@/lib/i18n';
+import { getLocale } from '@/lib/locale';
 import type { SampleQuality, ContentType } from '@/lib/types';
 import type { Metadata } from 'next';
 
@@ -19,7 +20,7 @@ interface PageProps {
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const params = await searchParams;
-  const lang = (params.lang as Locale) || 'ja';
+  const lang = await getLocale(params.lang);
 
   if (lang === 'en') {
     return {
@@ -44,7 +45,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 
 export default async function HomePage({ searchParams }: PageProps) {
   const params = await searchParams;
-  const lang = (params.lang as Locale) || 'ja';
+  const lang = await getLocale(params.lang);
   const t = getTranslations(lang);
   const keyword = params.q || '';
   const sort = (params.sort as 'date' | 'rank' | 'review') || 'rank'; // Default: popular
@@ -98,7 +99,7 @@ export default async function HomePage({ searchParams }: PageProps) {
       {/* Content type (All / Video / VR) + Genre filter */}
       <div className="flex items-center gap-3 mb-4">
         <Suspense>
-          <ContentTypeFilter />
+          <ContentTypeFilter labels={[t.typeAll, t.typeVideo, t.typeVr]} />
         </Suspense>
       </div>
 
@@ -115,12 +116,16 @@ export default async function HomePage({ searchParams }: PageProps) {
             <SortTabs labels={[t.sortNew, t.sortPopular, t.sortRating]} />
           </Suspense>
           <Suspense>
-            <QualityFilter />
+            <QualityFilter qualityLabel={t.qualityLabel} sampleQualityLabel={t.sampleQualityLabel} />
           </Suspense>
         </div>
         <span className="text-xs text-muted">
-          {result.totalCount > 0
-            ? t.showing(result.totalCount, (page - 1) * 30 + 1, Math.min(page * 30, result.totalCount))
+          {result.totalCount > 0 && result.items.length > 0
+            ? t.showing(
+                result.totalCount,
+                (page - 1) * result.pageSize + 1,
+                Math.min((page - 1) * result.pageSize + result.items.length, result.totalCount)
+              )
             : ''}
         </span>
       </div>
@@ -151,7 +156,12 @@ export default async function HomePage({ searchParams }: PageProps) {
 
       {/* Pagination */}
       <Suspense>
-        <Pagination currentPage={result.page} totalPages={result.totalPages} />
+        <Pagination
+          currentPage={result.page}
+          totalPages={result.totalPages}
+          prevLabel={t.prevPage}
+          nextLabel={t.nextPage}
+        />
       </Suspense>
     </div>
   );

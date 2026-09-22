@@ -2,13 +2,13 @@
 
 import { useRouter, useSearchParams } from 'next/navigation';
 
-const OPTIONS = [
-  { value: 'all', label: 'すべて' },
-  { value: 'video', label: '動画' },
-  { value: 'vr', label: 'VR' },
-] as const;
+const VALUES = ['all', 'video', 'vr'] as const;
 
-export default function ContentTypeFilter() {
+interface ContentTypeFilterProps {
+  labels?: [string, string, string];
+}
+
+export default function ContentTypeFilter({ labels = ['すべて', '動画', 'VR'] }: ContentTypeFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const current = searchParams.get('type') || 'all';
@@ -26,19 +26,19 @@ export default function ContentTypeFilter() {
 
   return (
     <div className="flex bg-card rounded-lg p-0.5 gap-0.5">
-      {OPTIONS.map((opt) => (
+      {VALUES.map((value, i) => (
         <button
-          key={opt.value}
-          onClick={() => handleChange(opt.value)}
+          key={value}
+          onClick={() => handleChange(value)}
           className={`px-4 py-2 rounded-md text-xs font-bold transition-all active:scale-95 ${
-            current === opt.value
-              ? opt.value === 'vr'
+            current === value
+              ? value === 'vr'
                 ? 'bg-purple-600 text-white'
                 : 'bg-accent text-white'
               : 'text-muted hover:text-foreground'
           }`}
         >
-          {opt.label}
+          {labels[i]}
         </button>
       ))}
     </div>

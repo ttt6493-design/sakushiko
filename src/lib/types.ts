@@ -36,5 +36,6 @@ export interface SearchResult {
   items: VideoItem[];
   totalCount: number;
   page: number;
+  pageSize: number; // raw items consumed per page (drives pagination offsets)
   totalPages: number;
 }

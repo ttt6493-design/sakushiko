@@ -1,20 +1,42 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useSyncExternalStore } from 'react';
+
+const STORAGE_KEY = 'age_verified';
+const CHANGE_EVENT = 'age-verified-change';
+
+function subscribe(callback: () => void) {
+  window.addEventListener('storage', callback);
+  window.addEventListener(CHANGE_EVENT, callback);
+  return () => {
+    window.removeEventListener('storage', callback);
+    window.removeEventListener(CHANGE_EVENT, callback);
+  };
+}
+
+function getSnapshot(): boolean {
+  try {
+    return localStorage.getItem(STORAGE_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+// On the server (and during hydration) assume verified so the gate never flashes for returning users
+function getServerSnapshot(): boolean {
+  return true;
+}
 
 export default function AgeGate() {
-  const [verified, setVerified] = useState(true); // Default true to avoid flash
-
-  useEffect(() => {
-    const isVerified = localStorage.getItem('age_verified');
-    if (!isVerified) {
-      setVerified(false);
-    }
-  }, []);
+  const verified = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   const handleConfirm = () => {
-    localStorage.setItem('age_verified', 'true');
-    setVerified(true);
+    try {
+      localStorage.setItem(STORAGE_KEY, 'true');
+    } catch {
+      // Storage unavailable (private mode etc.): the gate will just show again next visit
+    }
+    window.dispatchEvent(new Event(CHANGE_EVENT));
   };
 
   if (verified) return null;

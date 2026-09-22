@@ -110,8 +110,18 @@ function mapDmmItem(item: DmmItem): VideoItem {
   };
 }
 
-// Check if a sample video has a specific quality available (e.g., "2160p", "1080p", "720p")
-async function checkSampleHasQuality(cid: string, resolution: string): Promise<boolean> {
+// In-memory cache of "does sample <cid> offer <resolution>?" results.
+// The DMM player HTML is fetched once per cid and reused across all resolutions.
+const SAMPLE_QUALITY_TTL_MS = 6 * 60 * 60 * 1000; // 6h
+const sampleQualityCache = new Map<string, { resolutions: string[]; expires: number }>();
+const SAMPLE_QUALITY_CONCURRENCY = 6;
+const KNOWN_RESOLUTIONS = ['2160p', '1080p', '720p', '576p', '432p', '288p', '144p'];
+
+async function fetchSampleResolutions(cid: string): Promise<string[]> {
+  const cached = sampleQualityCache.get(cid);
+  if (cached && cached.expires > Date.now()) return cached.resolutions;
+
+  let resolutions: string[] = [];
   try {
     const url = `https://www.dmm.co.jp/service/digitalapi/-/html5_player/=/cid=${cid}/mtype=AhRVShI_/service=litevideo/mode=part/width=720/height=480/affi_id=${API_CONFIG.AFFILIATE_ID}/`;
 
@@ -124,10 +134,41 @@ async function checkSampleHasQuality(cid: string, resolution: string): Promise<b
     });
 
     const html = await response.text();
-    return html.includes(resolution);
+    resolutions = KNOWN_RESOLUTIONS.filter((r) => html.includes(r));
   } catch {
-    return false;
+    // Treat as unknown: cache the miss briefly so a flaky request doesn't retry on every page view
   }
+
+  sampleQualityCache.set(cid, { resolutions, expires: Date.now() + SAMPLE_QUALITY_TTL_MS });
+  return resolutions;
+}
+
+// Check if a sample video has a specific quality available (e.g., "2160p", "1080p", "720p")
+async function checkSampleHasQuality(cid: string, resolution: string): Promise<boolean> {
+  const resolutions = await fetchSampleResolutions(cid);
+  return resolutions.includes(resolution);
+}
+
+// Run async tasks with a bounded number in flight, preserving order of results.
+async function mapWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>
+): Promise<R[]> {
+  const results: R[] = new Array(items.length);
+  let next = 0;
+  const workers = Array.from({ length: Math.min(limit, items.length) }, async () => {
+    while (next < items.length) {
+      const i = next++;
+      results[i] = await fn(items[i]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+function isSampleQualityFilter(quality?: SampleQuality): boolean {
+  return quality === 's4k' || quality === 'sfhd' || quality === 'shd';
 }
 
 export async function fetchVideos(params: SearchParams = {}): Promise<SearchResult> {
@@ -138,8 +179,12 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
     return getMockResult(params, page, hits);
   }
 
-  // Fetch more than needed to compensate for filtering out videos without samples
-  const fetchHits = Math.min(hits * 3, 100); // Fetch 3x, max 100 (API limit)
+  // Page window in the raw DMM result set. Normally one page = `hits` raw items,
+  // so page N always starts right after page N-1 (no gaps, no duplicates).
+  // Sample-quality filters discard most items, so for those the raw window is
+  // widened to 3x (still page-aligned) and paging advances by that window.
+  const sampleFilter = isSampleQualityFilter(params.quality);
+  const fetchHits = sampleFilter ? Math.min(hits * 3, 100) : hits;
   const offset = (page - 1) * fetchHits + 1;
 
   // Determine floor based on content type filter
@@ -190,28 +235,26 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
   }
 
   // Sample quality filter: check actual sample quality from DMM player pages
-  if (params.quality === 's4k' || params.quality === 'sfhd' || params.quality === 'shd') {
+  // (bounded concurrency + per-cid cache so one page view can't fire 90 parallel requests)
+  if (sampleFilter) {
     const targetRes = params.quality === 's4k' ? '2160p' : params.quality === 'sfhd' ? '1080p' : '720p';
-    const checked = await Promise.all(
-      items.map(async (item) => {
-        const cidMatch = item.sampleVideoUrl?.match(/cid=([^/]+)/);
-        const cid = cidMatch?.[1] || item.content_id;
-        const hasQuality = await checkSampleHasQuality(cid, targetRes);
-        return { item, hasQuality };
-      })
-    );
+    const checked = await mapWithConcurrency(items, SAMPLE_QUALITY_CONCURRENCY, async (item) => {
+      const cidMatch = item.sampleVideoUrl?.match(/cid=([^/]+)/);
+      const cid = cidMatch?.[1] || item.content_id;
+      return { item, hasQuality: await checkSampleHasQuality(cid, targetRes) };
+    });
     items = checked.filter((c) => c.hasQuality).map((c) => c.item);
   }
 
-  // Trim to requested page size after all filters
   const totalCount = data.result.total_count;
   items = items.slice(0, hits);
 
   return {
     items,
-    totalCount: Math.min(totalCount, items.length > 0 ? totalCount : 0),
+    totalCount,
     page,
-    totalPages: Math.ceil(totalCount / hits),
+    pageSize: fetchHits,
+    totalPages: Math.ceil(totalCount / fetchHits),
   };
 }
 
@@ -244,6 +287,7 @@ function getMockResult(params: SearchParams, page: number, hits: number): Search
     items: filtered.slice(start, start + hits),
     totalCount: filtered.length,
     page,
+    pageSize: hits,
     totalPages: Math.ceil(filtered.length / hits),
   };
 }
