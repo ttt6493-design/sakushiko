@@ -114,7 +114,9 @@ function mapDmmItem(item: DmmItem): VideoItem {
 // The DMM player HTML is fetched once per cid and reused across all resolutions.
 const SAMPLE_QUALITY_TTL_MS = 6 * 60 * 60 * 1000; // 6h
 const sampleQualityCache = new Map<string, { resolutions: string[]; expires: number }>();
-const SAMPLE_QUALITY_CONCURRENCY = 6;
+// 12 in flight: a cold 90-item page takes ~8s instead of ~18s at 6, while still far below the
+// 90 parallel requests the filter used to fire. Warm pages are served from cache in <1s.
+const SAMPLE_QUALITY_CONCURRENCY = 12;
 const KNOWN_RESOLUTIONS = ['2160p', '1080p', '720p', '576p', '432p', '288p', '144p'];
 
 async function fetchSampleResolutions(cid: string): Promise<string[]> {
@@ -187,15 +189,14 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
   const fetchHits = sampleFilter ? Math.min(hits * 3, 100) : hits;
   const offset = (page - 1) * fetchHits + 1;
 
-  // Determine floor based on content type filter
-  const floor = params.contentType === 'vr' ? 'video' : API_CONFIG.FLOOR;
-
+  // VR titles live in the same 'videoa' floor (tagged with the VR genre); 'video' is not a
+  // valid FANZA floor and made the API return an error (HTTP 500 on /?type=vr).
   const queryParams = new URLSearchParams({
     api_id: API_CONFIG.API_ID,
     affiliate_id: API_CONFIG.AFFILIATE_ID,
     site: API_CONFIG.SITE,
     service: API_CONFIG.SERVICE,
-    floor,
+    floor: API_CONFIG.FLOOR,
     hits: String(fetchHits),
     offset: String(offset),
     sort: params.sort || 'rank', // Default: popular
@@ -219,12 +220,14 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
   const response = await fetch(url, { next: { revalidate: 300 } });
 
   if (!response.ok) {
-    throw new Error(`DMM API error: ${response.status}`);
+    // Render an empty list instead of a 500 page; details go to the server log
+    console.error(`DMM API error: HTTP ${response.status} for ${url.replace(API_CONFIG.API_ID, '***')}`);
+    return { items: [], totalCount: 0, page, pageSize: fetchHits, totalPages: 0 };
   }
 
   const data: DmmApiResponse = await response.json();
 
-  let items = data.result.items.map(mapDmmItem);
+  let items = (data.result.items ?? []).map(mapDmmItem);
 
   // Filter out videos without sample videos
   items = items.filter((v) => v.sampleVideoUrl !== null);
