@@ -1,7 +1,10 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { fetchVideoById } from '@/lib/api';
 import VideoPlayer from '@/components/VideoPlayer';
+import RelatedVideos from '@/components/RelatedVideos';
+import VideoGridSkeleton from '@/components/VideoGridSkeleton';
 import { getTranslations } from '@/lib/i18n';
 import { getLocale } from '@/lib/locale';
 import type { Metadata } from 'next';
@@ -221,7 +224,7 @@ export default async function VideoDetailPage({ params, searchParams }: PageProp
 
       {/* ===== Genre Tags ===== */}
       {video.genres.length > 0 && (
-        <section className="mb-20">
+        <section className="mb-6">
           <h2 className="text-sm font-bold text-foreground mb-3 flex items-center gap-2">
             <svg className="w-4 h-4 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
@@ -241,6 +244,20 @@ export default async function VideoDetailPage({ params, searchParams }: PageProp
           </div>
         </section>
       )}
+
+      {/* ===== Related videos (streamed; never blocks the player) ===== */}
+      <div className="mb-20">
+        <Suspense
+          fallback={
+            <section className="mb-6">
+              <h2 className="text-sm font-bold text-foreground mb-3">{t.relatedTitle}</h2>
+              <VideoGridSkeleton count={4} label={t.loadingResults} />
+            </section>
+          }
+        >
+          <RelatedVideos video={video} t={t} />
+        </Suspense>
+      </div>
 
       {/* ===== Bottom Sticky CTA ===== */}
       <section className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border px-4 py-3 safe-bottom">

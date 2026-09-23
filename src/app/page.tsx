@@ -1,17 +1,16 @@
 import { Suspense } from 'react';
-import { fetchVideos } from '@/lib/api';
-import VideoCard from '@/components/VideoCard';
 import SearchBar from '@/components/SearchBar';
 import SortTabs from '@/components/SortTabs';
 import GenreFilter from '@/components/GenreFilter';
-import Pagination from '@/components/Pagination';
 import ValueProps from '@/components/ValueProps';
 import QualityFilter from '@/components/QualityFilter';
 import ContentTypeFilter from '@/components/ContentTypeFilter';
+import VideoResults from '@/components/VideoResults';
+import VideoGridSkeleton from '@/components/VideoGridSkeleton';
 import { isApiConfigured } from '@/lib/config';
 import { getTranslations } from '@/lib/i18n';
 import { getLocale } from '@/lib/locale';
-import type { SampleQuality, ContentType } from '@/lib/types';
+import type { SampleQuality, ContentType, SearchParams } from '@/lib/types';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -52,16 +51,19 @@ export default async function HomePage({ searchParams }: PageProps) {
   const genre = params.genre || '';
   const quality = (params.quality as SampleQuality) || 'all';
   const contentType = (params.type as ContentType) || 'all';
-  const page = parseInt(params.page || '1', 10);
+  const page = Math.max(1, parseInt(params.page || '1', 10) || 1);
 
   const searchKeyword = [genre, keyword].filter(Boolean).join(' ');
-  const result = await fetchVideos({
+  const query: SearchParams = {
     keyword: searchKeyword || undefined,
     sort,
     quality,
     contentType,
     page,
-  });
+  };
+  // Changing any search input remounts the Suspense boundary so the skeleton
+  // shows immediately instead of the previous results lingering.
+  const queryKey = JSON.stringify(query);
 
   const isFirstPage = page === 1 && !keyword && !genre && contentType === 'all' && quality === 'all';
 
@@ -96,7 +98,7 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
       </Suspense>
 
-      {/* Content type (All / Video / VR) + Genre filter */}
+      {/* Content type (All / Video / VR) */}
       <div className="flex items-center gap-3 mb-4">
         <Suspense>
           <ContentTypeFilter labels={[t.typeAll, t.typeVideo, t.typeVr]} />
@@ -109,25 +111,14 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
       </Suspense>
 
-      {/* Sort + quality + count */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
-        <div className="flex flex-wrap items-center gap-3">
-          <Suspense>
-            <SortTabs labels={[t.sortNew, t.sortPopular, t.sortRating]} />
-          </Suspense>
-          <Suspense>
-            <QualityFilter qualityLabel={t.qualityLabel} sampleQualityLabel={t.sampleQualityLabel} />
-          </Suspense>
-        </div>
-        <span className="text-xs text-muted">
-          {result.totalCount > 0 && result.items.length > 0
-            ? t.showing(
-                result.totalCount,
-                (page - 1) * result.pageSize + 1,
-                Math.min((page - 1) * result.pageSize + result.items.length, result.totalCount)
-              )
-            : ''}
-        </span>
+      {/* Sort + quality */}
+      <div className="flex flex-wrap items-center gap-3 mb-2">
+        <Suspense>
+          <SortTabs labels={[t.sortNew, t.sortPopular, t.sortRating]} />
+        </Suspense>
+        <Suspense>
+          <QualityFilter qualityLabel={t.qualityLabel} sampleQualityLabel={t.sampleQualityLabel} />
+        </Suspense>
       </div>
 
       {/* Demo banner */}
@@ -137,31 +128,9 @@ export default async function HomePage({ searchParams }: PageProps) {
         </div>
       )}
 
-      {/* Video grid */}
-      {result.items.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {result.items.map((video) => (
-            <VideoCard key={video.content_id} video={video} sampleLabel={t.sample} />
-          ))}
-        </div>
-      ) : (
-        <div className="flex flex-col items-center justify-center py-20 text-muted">
-          <svg className="w-16 h-16 mb-4 text-muted/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <p className="text-lg mb-1">{t.noResults}</p>
-          <p className="text-sm">{t.noResultsSub}</p>
-        </div>
-      )}
-
-      {/* Pagination */}
-      <Suspense>
-        <Pagination
-          currentPage={result.page}
-          totalPages={result.totalPages}
-          prevLabel={t.prevPage}
-          nextLabel={t.nextPage}
-        />
+      {/* Video grid: streamed in after the shell above has painted */}
+      <Suspense key={queryKey} fallback={<VideoGridSkeleton label={t.loadingResults} />}>
+        <VideoResults params={query} t={t} />
       </Suspense>
     </div>
   );

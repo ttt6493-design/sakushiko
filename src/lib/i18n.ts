@@ -71,6 +71,12 @@ export const translations = {
     notFound: '動画が見つかりません',
     freeSampleTitleSuffix: '無料サンプル動画',
     starring: '出演',
+    relatedTitle: '関連作品',
+    relatedByActress: (name: string) => `${name}の他の作品`,
+    relatedBySeries: (name: string) => `シリーズ「${name}」の作品`,
+    relatedByMaker: (name: string) => `${name}の人気作品`,
+    seeMore: 'もっと見る',
+    loadingResults: '読み込み中...',
   },
   en: {
     siteName: 'SAKUSHIKO',
@@ -142,6 +148,12 @@ export const translations = {
     notFound: 'Video not found',
     freeSampleTitleSuffix: 'Free Sample Video',
     starring: 'Starring',
+    relatedTitle: 'Related Videos',
+    relatedByActress: (name: string) => `More from ${name}`,
+    relatedBySeries: (name: string) => `More from the "${name}" series`,
+    relatedByMaker: (name: string) => `Popular from ${name}`,
+    seeMore: 'See more',
+    loadingResults: 'Loading...',
   },
 } as const;
 

@@ -169,6 +169,8 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
+const LIST_REVALIDATE_SECONDS = 1800;
+
 function isSampleQualityFilter(quality?: SampleQuality): boolean {
   return quality === 's4k' || quality === 'sfhd' || quality === 'shd';
 }
@@ -217,7 +219,9 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
   }
 
   const url = `${API_CONFIG.BASE_URL}/ItemList?${queryParams.toString()}`;
-  const response = await fetch(url, { next: { revalidate: 300 } });
+  // Rankings and search results change slowly; 30 min keeps most genre/keyword
+  // hits on the warm path (~0.4s) instead of a 2-4s round trip to the DMM API.
+  const response = await fetch(url, { next: { revalidate: LIST_REVALIDATE_SECONDS } });
 
   if (!response.ok) {
     // Render an empty list instead of a 500 page; details go to the server log
@@ -312,7 +316,7 @@ export async function fetchVideoById(id: string): Promise<VideoItem | null> {
   });
 
   const url = `${API_CONFIG.BASE_URL}/ItemList?${queryParams.toString()}`;
-  const response = await fetch(url, { next: { revalidate: 300 } });
+  const response = await fetch(url, { next: { revalidate: LIST_REVALIDATE_SECONDS } });
 
   if (!response.ok) return null;
 
