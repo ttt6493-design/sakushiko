@@ -19,15 +19,12 @@ export interface VideoItem {
   duration: string;
 }
 
-export type ContentType = 'all' | 'video' | 'vr';
-
 export interface SearchParams {
   keyword?: string;
   sort?: 'date' | 'rank' | 'review';
   genre?: string;
   actress?: string;
   quality?: SampleQuality;
-  contentType?: ContentType;
   page?: number;
   hits?: number;
 }

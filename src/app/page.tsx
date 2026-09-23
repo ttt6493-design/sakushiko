@@ -4,13 +4,12 @@ import SortTabs from '@/components/SortTabs';
 import GenreFilter from '@/components/GenreFilter';
 import ValueProps from '@/components/ValueProps';
 import QualityFilter from '@/components/QualityFilter';
-import ContentTypeFilter from '@/components/ContentTypeFilter';
 import VideoResults from '@/components/VideoResults';
 import VideoGridSkeleton from '@/components/VideoGridSkeleton';
 import { isApiConfigured } from '@/lib/config';
 import { getTranslations } from '@/lib/i18n';
 import { getLocale } from '@/lib/locale';
-import type { SampleQuality, ContentType, SearchParams } from '@/lib/types';
+import type { SampleQuality, SearchParams } from '@/lib/types';
 import type { Metadata } from 'next';
 
 interface PageProps {
@@ -50,7 +49,6 @@ export default async function HomePage({ searchParams }: PageProps) {
   const sort = (params.sort as 'date' | 'rank' | 'review') || 'rank'; // Default: popular
   const genre = params.genre || '';
   const quality = (params.quality as SampleQuality) || 'all';
-  const contentType = (params.type as ContentType) || 'all';
   const page = Math.max(1, parseInt(params.page || '1', 10) || 1);
 
   const searchKeyword = [genre, keyword].filter(Boolean).join(' ');
@@ -58,14 +56,13 @@ export default async function HomePage({ searchParams }: PageProps) {
     keyword: searchKeyword || undefined,
     sort,
     quality,
-    contentType,
     page,
   };
   // Changing any search input remounts the Suspense boundary so the skeleton
   // shows immediately instead of the previous results lingering.
   const queryKey = JSON.stringify(query);
 
-  const isFirstPage = page === 1 && !keyword && !genre && contentType === 'all' && quality === 'all';
+  const isFirstPage = page === 1 && !keyword && !genre && quality === 'all';
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-4">
@@ -97,13 +94,6 @@ export default async function HomePage({ searchParams }: PageProps) {
           <SearchBar placeholder={t.searchPlaceholder} />
         </div>
       </Suspense>
-
-      {/* Content type (All / Video / VR) */}
-      <div className="flex items-center gap-3 mb-4">
-        <Suspense>
-          <ContentTypeFilter labels={[t.typeAll, t.typeVideo, t.typeVr]} />
-        </Suspense>
-      </div>
 
       <Suspense>
         <div className="mb-4">

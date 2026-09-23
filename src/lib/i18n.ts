@@ -53,9 +53,6 @@ export const translations = {
     creditLink: 'DMMアフィリエイト',
     creditSuffix: 'のWebサービスを利用して取得しています。',
     // Filters
-    typeAll: 'すべて',
-    typeVideo: '動画',
-    typeVr: 'VR',
     qualityLabel: '画質:',
     sampleQualityLabel: 'サンプル画質:',
     prevPage: '‹ 前',
@@ -130,9 +127,6 @@ export const translations = {
     creditLink: 'DMM Affiliate',
     creditSuffix: ' web service.',
     // Filters
-    typeAll: 'All',
-    typeVideo: 'Video',
-    typeVr: 'VR',
     qualityLabel: 'Quality:',
     sampleQualityLabel: 'Sample quality:',
     prevPage: '‹ Prev',

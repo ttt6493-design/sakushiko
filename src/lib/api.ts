@@ -183,16 +183,21 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
     return getMockResult(params, page, hits);
   }
 
-  // Page window in the raw DMM result set. Normally one page = `hits` raw items,
-  // so page N always starts right after page N-1 (no gaps, no duplicates).
-  // Sample-quality filters discard most items, so for those the raw window is
-  // widened to 3x (still page-aligned) and paging advances by that window.
+  // Page window in the raw DMM result set. One page = `fetchHits` raw items and
+  // paging advances by that window, so page N always starts right after page N-1
+  // (no gaps, no duplicates). Every raw item that survives filtering is shown.
+  //  - default: 30 raw items (rank/review lists keep ~28-30 cards)
+  //  - newest: 60 raw items, since many new releases have no sample yet and a
+  //    30-item window left only 10-20 cards per page
+  //  - sample-quality filters: 90 raw items, most get discarded
   const sampleFilter = isSampleQualityFilter(params.quality);
-  const fetchHits = sampleFilter ? Math.min(hits * 3, 100) : hits;
+  const fetchHits = sampleFilter
+    ? Math.min(hits * 3, 100)
+    : params.sort === 'date'
+      ? Math.min(hits * 2, 100)
+      : hits;
   const offset = (page - 1) * fetchHits + 1;
 
-  // VR titles live in the same 'videoa' floor (tagged with the VR genre); 'video' is not a
-  // valid FANZA floor and made the API return an error (HTTP 500 on /?type=vr).
   const queryParams = new URLSearchParams({
     api_id: API_CONFIG.API_ID,
     affiliate_id: API_CONFIG.AFFILIATE_ID,
@@ -212,7 +217,6 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
   if (params.quality === 'p4k' || params.quality === 's4k') keywords.push('4K');
   if (params.quality === 'pfhd' || params.quality === 'sfhd') keywords.push('ハイビジョン');
   if (params.quality === 'phd' || params.quality === 'shd') keywords.push('ハイビジョン');
-  if (params.contentType === 'vr') keywords.push('VR');
 
   if (keywords.length > 0) {
     queryParams.set('keyword', keywords.join(' '));
@@ -233,13 +237,9 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
 
   let items = (data.result.items ?? []).map(mapDmmItem);
 
-  // Filter out videos without sample videos
-  items = items.filter((v) => v.sampleVideoUrl !== null);
-
-  // Filter by content type (client-side, to exclude VR from regular listing)
-  if (params.contentType === 'video') {
-    items = items.filter((v) => !v.genres.some((g) => g.includes('VR')));
-  }
+  // Filter out videos without sample videos, and VR titles: the API almost never
+  // returns a sample URL for VR, so they can't be played here.
+  items = items.filter((v) => v.sampleVideoUrl !== null && !v.genres.some((g) => g.includes('VR')));
 
   // Sample quality filter: check actual sample quality from DMM player pages
   // (bounded concurrency + per-cid cache so one page view can't fire 90 parallel requests)
@@ -254,7 +254,6 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
   }
 
   const totalCount = data.result.total_count;
-  items = items.slice(0, hits);
 
   return {
     items,

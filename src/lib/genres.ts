@@ -21,6 +21,5 @@ export const GENRES: Genre[] = [
   { id: '企画', label: '企画', icon: '📋' },
   { id: 'ドラマ', label: 'ドラマ', icon: '🎞️' },
   { id: '4K', label: '4K高画質', icon: '📺' },
-  { id: 'VR', label: 'VR', icon: '🥽' },
   { id: '単体作品', label: '単体作品', icon: '⭐' },
 ];
