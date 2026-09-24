@@ -2,10 +2,10 @@ export type Locale = 'ja' | 'en';
 
 export const translations = {
   ja: {
-    siteName: 'SAKUSHIKO',
-    tagline: '世界最高峰のJPAVを、世界一見やすく。',
+    siteName: 'ZERO 4K AV',
+    tagline: '無料。広告ゼロ。4Kで見るAV。',
     subtitle: '',
-    creatorNote: '広告まみれのサイトにうんざりして、作りました。\nポップアップも詐欺広告もありません。ただ、良いコンテンツを見やすく。',
+    creatorNote: '広告まみれのサイトにうんざりして、作りました。\nポップアップも詐欺広告もありません。FANZA公式の動画を、ただ見やすく。',
     creatorSign: '',
     searchPlaceholder: 'タイトル・女優名・ジャンルで検索...',
     sortNew: '新着順',
@@ -15,7 +15,7 @@ export const translations = {
       `${total.toLocaleString()}件 / ${from}-${to}件表示`,
     noResults: '動画が見つかりませんでした',
     noResultsSub: '別のキーワードやカテゴリで検索してみてください',
-    sample: 'サンプル',
+    sample: '無料',
     playFullscreen: '再生で全画面＋横向き表示',
     sampleNote: '※ FANZAが公式に提供する無料サンプル動画です',
     likedIt: 'サンプルが気に入りましたか？本編をチェック！',
@@ -38,12 +38,12 @@ export const translations = {
     footer2: 'サンプル動画はFANZAが公式に提供する無料コンテンツです。',
     allGenres: 'すべて',
     // Value props
-    prop1Title: '広告なし',
-    prop1Desc: 'ウザい広告ゼロ。動画だけに集中。',
-    prop2Title: 'JPAV',
-    prop2Desc: '世界最高品質の日本産AVを高画質で。',
-    prop3Title: 'サクッと検索',
-    prop3Desc: 'カテゴリ別に秒で見つかる。',
+    prop1Title: '広告ゼロ',
+    prop1Desc: 'ポップアップも詐欺広告もなし。動画だけ。',
+    prop2Title: '4K画質',
+    prop2Desc: '4K・フルHD作品はそのままの画質で再生。',
+    prop3Title: 'ぜんぶ無料',
+    prop3Desc: '登録不要。女優・ジャンルから秒で見つかる。',
     playVideo: 'サンプル動画を再生',
     apiNote: 'API接続後に再生可能になります',
     // Header / footer
@@ -66,7 +66,7 @@ export const translations = {
     landscape: '横向き全画面',
     // Detail page
     notFound: '動画が見つかりません',
-    freeSampleTitleSuffix: '無料サンプル動画',
+    freeSampleTitleSuffix: '無料動画',
     starring: '出演',
     relatedTitle: '関連作品',
     relatedByActress: (name: string) => `${name}の他の作品`,
@@ -75,9 +75,9 @@ export const translations = {
     seeMore: 'もっと見る',
     loadingResults: '読み込み中...',
     // Actress page
-    actressPageTitle: (name: string) => `${name}の無料サンプル動画一覧`,
+    actressPageTitle: (name: string) => `${name}の無料動画一覧`,
     actressPageDescription: (name: string) =>
-      `${name}が出演するFANZAの無料サンプル動画を広告なしでまとめて視聴。人気順・新着順で探せます。`,
+      `${name}が出演するFANZA公式の無料動画を広告なしでまとめて視聴。4K・フルHD対応、人気順・新着順で探せます。`,
     actressHeading: (name: string) => `${name} の作品`,
     profileHeight: '身長',
     profileSize: 'スリーサイズ',
@@ -88,10 +88,10 @@ export const translations = {
     actressIndex: '女優',
   },
   en: {
-    siteName: 'SAKUSHIKO',
-    tagline: 'The World\'s Finest JPAV. The Cleanest Site.',
+    siteName: 'ZERO 4K AV',
+    tagline: 'Free. Zero ads. Japanese AV in 4K.',
     subtitle: '',
-    creatorNote: 'Tired of ad-infested sites, so I built this.\nNo popups. No scam ads. Just content, made easy to browse.',
+    creatorNote: 'Tired of ad-infested sites, so I built this.\nNo popups. No scam ads. Official FANZA videos, made easy to browse.',
     creatorSign: '— A developer from Japan',
     searchPlaceholder: 'Search by title, actress, genre...',
     sortNew: 'Latest',
@@ -126,10 +126,10 @@ export const translations = {
     // Value props
     prop1Title: 'Zero Ads',
     prop1Desc: 'No popups. No redirects. Just videos.',
-    prop2Title: 'JPAV',
-    prop2Desc: 'The world\'s finest adult content. Unmatched quality, in HD.',
-    prop3Title: 'Instant Search',
-    prop3Desc: 'Find exactly what you want in seconds.',
+    prop2Title: '4K Quality',
+    prop2Desc: '4K and Full HD titles play at full resolution.',
+    prop3Title: 'All Free',
+    prop3Desc: 'No sign-up. Find it by actress or genre in seconds.',
     playVideo: 'Play sample video',
     apiNote: 'Available after API connection',
     // Header / footer
@@ -152,7 +152,7 @@ export const translations = {
     landscape: 'Landscape fullscreen',
     // Detail page
     notFound: 'Video not found',
-    freeSampleTitleSuffix: 'Free Sample Video',
+    freeSampleTitleSuffix: 'Free Video',
     starring: 'Starring',
     relatedTitle: 'Related Videos',
     relatedByActress: (name: string) => `More from ${name}`,
@@ -161,9 +161,9 @@ export const translations = {
     seeMore: 'See more',
     loadingResults: 'Loading...',
     // Actress page
-    actressPageTitle: (name: string) => `${name} - Free Sample Videos`,
+    actressPageTitle: (name: string) => `${name} - Free Videos`,
     actressPageDescription: (name: string) =>
-      `Watch free official FANZA sample videos starring ${name}, ad-free. Sort by popularity or release date.`,
+      `Watch free official FANZA videos starring ${name}, ad-free, in 4K and Full HD. Sort by popularity or release date.`,
     actressHeading: (name: string) => `Videos starring ${name}`,
     profileHeight: 'Height',
     profileSize: 'Measurements',

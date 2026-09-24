@@ -10,13 +10,13 @@
 
 ## Post 1: Introduction Post (r/JAV)
 
-**Title:** I built a clean, ad-free site to browse FANZA free sample videos — SAKUSHIKO
+**Title:** I built a clean, ad-free site to browse FANZA free sample videos — ZERO 4K AV
 
 **Body:**
 
 Hey everyone,
 
-I got tired of dealing with sketchy sites full of popups and fake download buttons just to watch official sample videos. So I built **SAKUSHIKO** — a clean, minimal site that lets you browse FANZA's free sample videos without any of that BS.
+I got tired of dealing with sketchy sites full of popups and fake download buttons just to watch official sample videos. So I built **ZERO 4K AV** — a clean, minimal site that lets you browse FANZA's free sample videos without any of that BS.
 
 **What it does:**
 - Browse free official sample videos from FANZA/DMM
@@ -38,7 +38,7 @@ Would love feedback on what features you'd want to see. Thinking about adding ac
 
 ## Post 2: r/NSFW411
 
-**Title:** [SITE] SAKUSHIKO — Ad-free Japanese AV sample video browser
+**Title:** [SITE] ZERO 4K AV — Ad-free Japanese AV sample video browser
 
 **Body:**
 
@@ -58,11 +58,11 @@ https://sakushiko-rouge.vercel.app?lang=en
 
 ## Post 3: Follow-up / Update Post
 
-**Title:** [Update] SAKUSHIKO now has [NEW FEATURE] — still ad-free
+**Title:** [Update] ZERO 4K AV now has [NEW FEATURE] — still ad-free
 
 **Body:**
 
-Quick update on SAKUSHIKO, the ad-free FANZA sample browser:
+Quick update on ZERO 4K AV, the ad-free FANZA sample browser:
 
 **New:**
 - [Feature 1]
@@ -79,7 +79,7 @@ https://sakushiko-rouge.vercel.app?lang=en
 
 When someone asks "best site for JAV samples?" or "any clean JAV sites?":
 
-> I built SAKUSHIKO for exactly this — it's a clean, ad-free browser for official FANZA sample videos. No popups, no redirects, just content. https://sakushiko-rouge.vercel.app?lang=en
+> I built ZERO 4K AV for exactly this — it's a clean, ad-free browser for official FANZA sample videos. No popups, no redirects, just content. https://sakushiko-rouge.vercel.app?lang=en
 
 ---
 

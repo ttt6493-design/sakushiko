@@ -21,27 +21,27 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: 'SAKUSHIKO - 無料サンプル動画で今すぐオカズ探し',
-    template: '%s | SAKUSHIKO',
+    default: 'ZERO 4K AV｜無料・広告なし。4Kで見られるAV動画',
+    template: '%s | ZERO 4K AV',
   },
   description:
-    'FANZAの無料サンプル動画をサクッと探せるサイト。カテゴリ別に簡単検索、気に入ったらそのまま購入へ。',
-  keywords: ['FANZA', 'サンプル動画', '無料', 'DMM', 'アダルト', '動画'],
+    '無料・広告なしで見られるFANZA公式のAV動画。4K・フルHD対応、女優・ジャンル別に秒で検索。気に入ったらそのまま本編へ。',
+  keywords: ['4K', 'AV', '無料', '広告なし', 'FANZA', 'エロ動画', 'DMM'],
   openGraph: {
-    title: 'SAKUSHIKO',
-    description: 'FANZAの無料サンプル動画をサクッと探せるサイト',
+    title: 'ZERO 4K AV',
+    description: '無料。広告ゼロ。4Kで見るAV。',
     type: 'website',
-    siteName: 'SAKUSHIKO',
+    siteName: 'ZERO 4K AV',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'SAKUSHIKO',
-    description: 'FANZAの無料サンプル動画をサクッと探せるサイト',
+    title: 'ZERO 4K AV',
+    description: '無料。広告ゼロ。4Kで見るAV。',
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'black-translucent',
-    title: 'SAKUSHIKO',
+    title: 'ZERO 4K AV',
   },
   formatDetection: {
     telephone: false,
@@ -83,7 +83,7 @@ export default async function RootLayout({
             </p>
             <p className="text-[10px] text-muted">{t.footer2}</p>
             <p className="text-[10px] text-muted/50 mt-2">
-              © {new Date().getFullYear()} SAKUSHIKO
+              © {new Date().getFullYear()} ZERO 4K AV
             </p>
           </div>
         </footer>

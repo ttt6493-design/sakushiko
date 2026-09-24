@@ -2,9 +2,9 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'SAKUSHIKO - 無料サンプル動画サーチ',
-    short_name: 'SAKUSHIKO',
-    description: 'FANZAの無料サンプル動画をサクッと探せるサイト',
+    name: 'ZERO 4K AV - 無料・広告なしの4K AV動画',
+    short_name: 'ZERO 4K AV',
+    description: '無料・広告なしで見られるFANZA公式のAV動画',
     start_url: '/',
     display: 'standalone',
     background_color: '#0a0a12',

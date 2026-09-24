@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Blog - SAKUSHIKO',
+  title: 'Blog',
   description: 'Articles about Japanese AV, free sample videos, and FANZA content.',
 };
 

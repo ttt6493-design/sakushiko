@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Why Japanese AV Has the Highest Production Quality in the World | SAKUSHIKO',
+  title: 'Why Japanese AV Has the Highest Production Quality in the World',
   description:
     'From cinematography to storylines — an honest look at why Japan\'s adult video industry produces content that\'s a cut above the rest.',
   keywords: ['Japanese AV quality', 'JAV production', 'best adult video', 'Japan AV industry', 'FANZA'],
@@ -77,7 +77,7 @@ export default function WhyJapaneseAvArticle() {
         <p>
           The best way to understand the quality difference is to actually watch some samples.
           FANZA provides free official sample videos for most titles, and you can browse them
-          easily on SAKUSHIKO — no ads, no sign-up required.
+          easily on ZERO 4K AV — no ads, no sign-up required.
         </p>
 
         <div className="bg-card rounded-lg p-5 my-8 text-center">
@@ -88,7 +88,7 @@ export default function WhyJapaneseAvArticle() {
             href="/?lang=en"
             className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-bold px-6 py-3 rounded-lg transition-all text-sm"
           >
-            Explore SAKUSHIKO →
+            Explore ZERO 4K AV →
           </Link>
         </div>
       </div>

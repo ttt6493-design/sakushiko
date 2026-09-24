@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Best Free JAV Sample Video Sites in 2026 — Honest Comparison | SAKUSHIKO',
+  title: 'Best Free JAV Sample Video Sites in 2026 — Honest Comparison',
   description:
     'Compare the best sites for watching free Japanese AV sample videos in 2026. We test for malware, ads, video quality, and user experience.',
   keywords: ['free JAV sample', 'JAV preview site', 'FANZA free video', 'best JAV site 2026', 'ad-free JAV'],
@@ -72,9 +72,9 @@ export default function BestJavSitesArticle() {
           <li>Japanese-only interface</li>
         </ul>
 
-        <h2 className="text-lg font-bold text-foreground mt-8 mb-3">Our Pick: SAKUSHIKO</h2>
+        <h2 className="text-lg font-bold text-foreground mt-8 mb-3">Our Pick: ZERO 4K AV</h2>
         <p>
-          That&apos;s why we built <strong>SAKUSHIKO</strong> — a clean, ad-free interface
+          That&apos;s why we built <strong>ZERO 4K AV</strong> — a clean, ad-free interface
           for browsing the same official FANZA sample videos. Here&apos;s what makes it different:
         </p>
         <ul className="list-disc list-inside space-y-1 text-muted">
@@ -88,7 +88,7 @@ export default function BestJavSitesArticle() {
 
         <div className="bg-card rounded-lg p-5 my-8 text-center">
           <p className="text-base font-bold text-foreground mb-3">
-            Try SAKUSHIKO — Free, Clean, Fast
+            Try ZERO 4K AV — Free, Clean, Fast
           </p>
           <Link
             href="/?lang=en"
@@ -110,7 +110,7 @@ export default function BestJavSitesArticle() {
         <p>
           If you want to browse free JAV samples without dealing with ad-infested hellscapes,
           your best bet is using a clean frontend that pulls from official FANZA sources.
-          That&apos;s exactly what SAKUSHIKO does — and it&apos;s free.
+          That&apos;s exactly what ZERO 4K AV does — and it&apos;s free.
         </p>
       </div>
 

@@ -12,10 +12,11 @@ export default function Header({ locale, t }: HeaderProps) {
   return (
     <header className="sticky top-0 z-50 bg-[#0a0a12]/95 backdrop-blur-md border-b border-border">
       <div className="max-w-6xl mx-auto px-4 h-12 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 shrink-0">
-          <span className="text-lg font-black text-accent">▶</span>
-          <span className="text-base font-bold text-foreground tracking-tight">
-            SAKUSHIKO
+        <Link href="/" className="flex items-center gap-1.5 shrink-0" aria-label="ZERO 4K AV">
+          <span className="text-lg font-black text-accent leading-none">▶</span>
+          <span className="flex items-baseline gap-1.5 leading-none">
+            <span className="text-lg font-black text-foreground tracking-tight">ZERO</span>
+            <span className="text-xs font-bold text-accent tracking-[0.2em]">4K AV</span>
           </span>
         </Link>
         <div className="flex items-center gap-4">

@@ -22,22 +22,22 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 
   if (lang === 'en') {
     return {
-      title: 'SAKUSHIKO - Free Japanese AV Sample Videos | No Ads, Just Content',
+      title: { absolute: 'ZERO 4K AV | Free Japanese AV in 4K. Zero Ads.' },
       description:
-        'Browse free official Japanese AV sample videos. Premium quality, zero ads, instant category search. The cleanest JAV preview site on the web.',
-      keywords: ['japanese av', 'JAV', 'free sample', 'preview', 'FANZA', 'no ads', 'DMM'],
+        'Watch official Japanese AV videos free, in 4K and Full HD, with zero ads. Instant search by actress and genre.',
+      keywords: ['japanese av', 'JAV', '4K', 'free', 'no ads', 'FANZA', 'DMM'],
       openGraph: {
-        title: 'SAKUSHIKO - Free Japanese AV Samples',
-        description: 'Premium Japanese AV samples. No ads. No BS.',
+        title: 'ZERO 4K AV',
+        description: 'Free. Zero ads. Japanese AV in 4K.',
       },
     };
   }
 
   return {
-    title: 'SAKUSHIKO - 無料サンプル動画で今すぐオカズ探し',
+    title: { absolute: 'ZERO 4K AV｜無料・広告なし。4Kで見られるAV動画' },
     description:
-      'FANZAの無料サンプル動画をサクッと探せるサイト。広告なし、カテゴリ別に簡単検索。気に入ったらそのまま購入へ。',
-    keywords: ['FANZA', 'サンプル動画', '無料', 'DMM', 'AV', '広告なし'],
+      '無料・広告なしで見られるFANZA公式のAV動画。4K・フルHD対応、女優・ジャンル別に秒で検索。気に入ったらそのまま本編へ。',
+    keywords: ['4K', 'AV', '無料', '広告なし', 'FANZA', 'エロ動画', 'DMM'],
   };
 }
 

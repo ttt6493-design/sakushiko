@@ -24,7 +24,7 @@ export async function generateMetadata({ params, searchParams }: PageProps): Pro
 
   const people = video.actresses.join(', ');
   return {
-    // Root layout appends " | SAKUSHIKO" via its title template
+    // Root layout appends " | ZERO 4K AV" via its title template
     title: `${video.title} - ${t.freeSampleTitleSuffix}`,
     description: `${video.title} ${t.freeSampleTitleSuffix}. ${t.starring}: ${people} | ${video.maker} | ${video.genres.join(', ')}`,
     openGraph: {

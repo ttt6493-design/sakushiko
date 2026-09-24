@@ -2,7 +2,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'How to Watch FANZA Free Sample Videos — Complete Guide | SAKUSHIKO',
+  title: 'How to Watch FANZA Free Sample Videos — Complete Guide',
   description:
     'Step-by-step guide to finding and watching free official sample videos on FANZA/DMM, even if you don\'t read Japanese.',
   keywords: ['FANZA sample video', 'how to watch FANZA', 'DMM free video', 'FANZA guide english', 'JAV free sample how to'],
@@ -51,9 +51,9 @@ export default function HowToUseFanzaArticle() {
           like the UI is intentionally bad to push you toward purchasing.
         </p>
 
-        <h2 className="text-lg font-bold text-foreground mt-8 mb-3">The Easy Way: Use SAKUSHIKO</h2>
+        <h2 className="text-lg font-bold text-foreground mt-8 mb-3">The Easy Way: Use ZERO 4K AV</h2>
         <p>
-          SAKUSHIKO pulls the same official FANZA data through their public API and presents
+          ZERO 4K AV pulls the same official FANZA data through their public API and presents
           it in a clean, browsable interface. Here&apos;s what you can do:
         </p>
 
@@ -96,7 +96,7 @@ export default function HowToUseFanzaArticle() {
             href="/?lang=en"
             className="inline-flex items-center gap-2 bg-accent hover:bg-accent-hover text-white font-bold px-6 py-3 rounded-lg transition-all text-sm"
           >
-            Open SAKUSHIKO →
+            Open ZERO 4K AV →
           </Link>
         </div>
 
@@ -105,18 +105,18 @@ export default function HowToUseFanzaArticle() {
         <h3 className="text-base font-bold text-foreground mt-4 mb-1">Is this legal?</h3>
         <p>
           Yes. Sample videos are officially provided by FANZA/DMM for free public viewing.
-          SAKUSHIKO accesses them through FANZA&apos;s official API.
+          ZERO 4K AV accesses them through FANZA&apos;s official API.
         </p>
 
         <h3 className="text-base font-bold text-foreground mt-4 mb-1">Do I need an account?</h3>
         <p>
-          No. You can browse and watch samples without any registration on SAKUSHIKO.
+          No. You can browse and watch samples without any registration on ZERO 4K AV.
           You only need a FANZA account if you want to purchase the full video.
         </p>
 
         <h3 className="text-base font-bold text-foreground mt-4 mb-1">Does it work on mobile?</h3>
         <p>
-          Yes — SAKUSHIKO is designed mobile-first. It works on any modern smartphone browser.
+          Yes — ZERO 4K AV is designed mobile-first. It works on any modern smartphone browser.
           You can also add it to your home screen for an app-like experience.
         </p>
       </div>
