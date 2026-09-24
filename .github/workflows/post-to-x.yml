@@ -1,0 +1,51 @@
+name: Post to X
+
+on:
+  schedule:
+    # 21:00 JST daily (12:00 UTC)
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Preview only (no tweet)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: post-to-x
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Post one new sample video
+        env:
+          X_API_KEY: ${{ secrets.X_API_KEY }}
+          X_API_SECRET: ${{ secrets.X_API_SECRET }}
+          X_ACCESS_TOKEN: ${{ secrets.X_ACCESS_TOKEN }}
+          X_ACCESS_SECRET: ${{ secrets.X_ACCESS_SECRET }}
+          DMM_API_ID: ${{ secrets.DMM_API_ID }}
+          DMM_AFFILIATE_ID: ${{ secrets.DMM_AFFILIATE_ID }}
+          SITE_URL: ${{ vars.SITE_URL }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
+        run: node scripts/post-to-x.mjs
+
+      - name: Record posted ids
+        run: |
+          if ! git diff --quiet -- scripts/posted.json; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add scripts/posted.json
+            git commit -m "chore: record posted video id [skip ci]"
+            git push
+          fi
