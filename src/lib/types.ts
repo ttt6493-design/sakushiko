@@ -24,9 +24,26 @@ export interface SearchParams {
   sort?: 'date' | 'rank' | 'review';
   genre?: string;
   actress?: string;
+  actressId?: number; // exact filter via DMM article=actress (preferred over keyword)
   quality?: SampleQuality;
   page?: number;
   hits?: number;
+}
+
+export interface Actress {
+  id: number;
+  name: string;
+  ruby: string;
+  imageUrl: string | null;
+  height: string;
+  bust: string;
+  cup: string;
+  waist: string;
+  hip: string;
+  birthday: string;
+  bloodType: string;
+  hobby: string;
+  prefectures: string;
 }
 
 export interface SearchResult {

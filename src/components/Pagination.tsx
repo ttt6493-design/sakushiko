@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 interface PaginationProps {
   currentPage: number;
@@ -16,6 +16,7 @@ export default function Pagination({
   nextLabel = '次 ›',
 }: PaginationProps) {
   const router = useRouter();
+  const pathname = usePathname(); // works on / and on /actress/[name]
   const searchParams = useSearchParams();
 
   if (totalPages <= 1) return null;
@@ -23,7 +24,7 @@ export default function Pagination({
   const goToPage = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', String(page));
-    router.push(`/?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   // Show max 7 page buttons

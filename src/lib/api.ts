@@ -1,4 +1,4 @@
-import { VideoItem, SearchParams, SearchResult, SampleQuality } from './types';
+import { VideoItem, SearchParams, SearchResult, SampleQuality, Actress } from './types';
 import { API_CONFIG, isApiConfigured } from './config';
 import { MOCK_VIDEOS } from './mock-data';
 
@@ -210,6 +210,12 @@ export async function fetchVideos(params: SearchParams = {}): Promise<SearchResu
     output: 'json',
   });
 
+  // Exact actress filter (actress pages). Keyword search would also match titles.
+  if (params.actressId) {
+    queryParams.set('article', 'actress');
+    queryParams.set('article_id', String(params.actressId));
+  }
+
   // Build keyword: combine user keyword + quality keyword for server-side filtering
   // Quality values: p4k/pfhd/phd = product quality, s4k/sfhd/shd = sample quality
   const keywords: string[] = [];
@@ -278,6 +284,10 @@ function getMockResult(params: SearchParams, page: number, hits: number): Search
     );
   }
 
+  if (params.actress) {
+    filtered = filtered.filter((v) => v.actresses.includes(params.actress!));
+  }
+
   if (params.quality && params.quality !== 'all') {
     filtered = filtered.filter((v) => v.sampleQualities.includes(params.quality!));
   }
@@ -296,6 +306,78 @@ function getMockResult(params: SearchParams, page: number, hits: number): Search
     pageSize: hits,
     totalPages: Math.ceil(filtered.length / hits),
   };
+}
+
+interface DmmActressResponse {
+  result: {
+    status: number;
+    result_count: number;
+    actress?: Array<{
+      id: string | number;
+      name: string;
+      ruby?: string;
+      bust?: string | number;
+      cup?: string;
+      waist?: string | number;
+      hip?: string | number;
+      height?: string | number;
+      birthday?: string;
+      blood_type?: string;
+      hobby?: string;
+      prefectures?: string;
+      imageURL?: { small?: string; large?: string };
+    }>;
+  };
+}
+
+const str = (v: string | number | undefined | null): string => (v === undefined || v === null ? '' : String(v));
+
+/**
+ * Look up an actress by exact name via the DMM ActressSearch API.
+ * Returns null in demo mode, on API errors, or when no exact match exists
+ * (callers then fall back to a keyword search so the page still works).
+ */
+export async function fetchActress(name: string): Promise<Actress | null> {
+  if (!isApiConfigured() || !name) return null;
+
+  const queryParams = new URLSearchParams({
+    api_id: API_CONFIG.API_ID,
+    affiliate_id: API_CONFIG.AFFILIATE_ID,
+    keyword: name,
+    hits: '20',
+    output: 'json',
+  });
+
+  try {
+    const url = `${API_CONFIG.BASE_URL}/ActressSearch?${queryParams.toString()}`;
+    const response = await fetch(url, { next: { revalidate: 86400 } });
+    if (!response.ok) {
+      console.error(`DMM ActressSearch error: HTTP ${response.status}`);
+      return null;
+    }
+    const data: DmmActressResponse = await response.json();
+    const match = data.result.actress?.find((a) => a.name === name);
+    if (!match) return null;
+
+    return {
+      id: Number(match.id),
+      name: match.name,
+      ruby: str(match.ruby),
+      imageUrl: match.imageURL?.large || match.imageURL?.small || null,
+      height: str(match.height),
+      bust: str(match.bust),
+      cup: str(match.cup),
+      waist: str(match.waist),
+      hip: str(match.hip),
+      birthday: str(match.birthday),
+      bloodType: str(match.blood_type),
+      hobby: str(match.hobby),
+      prefectures: str(match.prefectures),
+    };
+  } catch (error) {
+    console.error('DMM ActressSearch failed', error);
+    return null;
+  }
 }
 
 export async function fetchVideoById(id: string): Promise<VideoItem | null> {

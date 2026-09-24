@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { VideoItem } from '@/lib/types';
 import { getHighestQualityLabel } from '@/lib/api';
+import { actressHref, videoHref } from '@/lib/links';
 
 interface VideoCardProps {
   video: VideoItem;
@@ -10,14 +11,13 @@ interface VideoCardProps {
 
 export default function VideoCard({ video, sampleLabel = 'サンプル' }: VideoCardProps) {
   const qualityLabel = getHighestQualityLabel(video.sampleQualities);
+  const href = videoHref(video.content_id);
 
+  // The card is a <div> (not one big <Link>) so actress names can be their own links.
   return (
-    <Link
-      href={`/video/${video.content_id}`}
-      className="group block bg-card rounded-lg overflow-hidden hover:bg-card-hover transition-all hover:ring-1 hover:ring-accent/30 active:scale-[0.98]"
-    >
+    <div className="group bg-card rounded-lg overflow-hidden hover:bg-card-hover transition-all hover:ring-1 hover:ring-accent/30">
       {/* Thumbnail - tall aspect for portrait jacket images */}
-      <div className="relative aspect-[3/4] overflow-hidden">
+      <Link href={href} className="block relative aspect-[3/4] overflow-hidden active:scale-[0.98] transition-transform">
         <Image
           src={video.thumbnailUrl}
           alt={video.title}
@@ -53,17 +53,26 @@ export default function VideoCard({ video, sampleLabel = 'サンプル' }: Video
             {video.duration}
           </span>
         )}
-      </div>
+      </Link>
 
       {/* Info */}
       <div className="p-2.5">
-        <h3 className="text-[13px] font-semibold text-foreground leading-tight line-clamp-2 mb-1.5 group-hover:text-accent transition-colors">
-          {video.title}
+        <h3 className="text-[13px] font-semibold text-foreground leading-tight line-clamp-2 mb-1.5">
+          <Link href={href} className="group-hover:text-accent transition-colors">
+            {video.title}
+          </Link>
         </h3>
 
         {video.actresses.length > 0 && (
           <p className="text-[11px] text-accent/80 truncate mb-1">
-            {video.actresses.join(' / ')}
+            {video.actresses.map((actress, i) => (
+              <span key={actress}>
+                {i > 0 && <span className="text-muted"> / </span>}
+                <Link href={actressHref(actress)} className="hover:text-accent hover:underline">
+                  {actress}
+                </Link>
+              </span>
+            ))}
           </p>
         )}
 
@@ -91,6 +100,6 @@ export default function VideoCard({ video, sampleLabel = 'サンプル' }: Video
           ))}
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

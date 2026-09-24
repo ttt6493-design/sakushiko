@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 const SORT_VALUES = ['date', 'rank', 'review'] as const;
 
@@ -10,6 +10,7 @@ interface SortTabsProps {
 
 export default function SortTabs({ labels = ['新着順', '人気順', '高評価順'] }: SortTabsProps) {
   const router = useRouter();
+  const pathname = usePathname(); // works on / and on /actress/[name]
   const searchParams = useSearchParams();
   const currentSort = searchParams.get('sort') || 'rank';
 
@@ -17,7 +18,7 @@ export default function SortTabs({ labels = ['新着順', '人気順', '高評�
     const params = new URLSearchParams(searchParams.toString());
     params.set('sort', sort);
     params.delete('page');
-    router.push(`/?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (

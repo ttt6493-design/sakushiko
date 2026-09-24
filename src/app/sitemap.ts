@@ -10,7 +10,8 @@ export const revalidate = 3600;
 const VIDEO_PAGES = 3; // 3 x 100 = top 300 popular videos
 const VIDEO_HITS = 100; // DMM API max per request
 
-async function fetchVideoEntries(): Promise<MetadataRoute.Sitemap> {
+// Top popular videos plus every actress appearing in them.
+async function fetchDynamicEntries(): Promise<MetadataRoute.Sitemap> {
   if (!isApiConfigured()) return [];
 
   const pages = await Promise.all(
@@ -19,22 +20,34 @@ async function fetchVideoEntries(): Promise<MetadataRoute.Sitemap> {
     )
   );
 
-  const seen = new Set<string>();
-  const entries: MetadataRoute.Sitemap = [];
+  const seenVideos = new Set<string>();
+  const seenActresses = new Set<string>();
+  const videoEntries: MetadataRoute.Sitemap = [];
+  const actressEntries: MetadataRoute.Sitemap = [];
   for (const result of pages) {
     if (!result) continue;
     for (const video of result.items) {
-      if (seen.has(video.content_id)) continue;
-      seen.add(video.content_id);
-      entries.push({
-        url: `${SITE_URL}/video/${encodeURIComponent(video.content_id)}`,
-        lastModified: video.date ? new Date(video.date) : undefined,
-        changeFrequency: 'weekly',
-        priority: 0.6,
-      });
+      if (!seenVideos.has(video.content_id)) {
+        seenVideos.add(video.content_id);
+        videoEntries.push({
+          url: `${SITE_URL}/video/${encodeURIComponent(video.content_id)}`,
+          lastModified: video.date ? new Date(video.date) : undefined,
+          changeFrequency: 'weekly',
+          priority: 0.6,
+        });
+      }
+      for (const actress of video.actresses) {
+        if (seenActresses.has(actress)) continue;
+        seenActresses.add(actress);
+        actressEntries.push({
+          url: `${SITE_URL}/actress/${encodeURIComponent(actress)}`,
+          changeFrequency: 'weekly',
+          priority: 0.7,
+        });
+      }
     }
   }
-  return entries;
+  return [...actressEntries, ...videoEntries];
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -72,7 +85,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  const videoEntries = await fetchVideoEntries();
+  const dynamicEntries = await fetchDynamicEntries();
 
-  return [...staticEntries, ...genreEntries, ...videoEntries];
+  return [...staticEntries, ...genreEntries, ...dynamicEntries];
 }

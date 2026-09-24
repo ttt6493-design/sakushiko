@@ -3,6 +3,7 @@ import { fetchVideos } from '@/lib/api';
 import type { VideoItem } from '@/lib/types';
 import type { Translations } from '@/lib/i18n';
 import VideoCard from './VideoCard';
+import { actressHref, searchHref } from '@/lib/links';
 
 interface RelatedVideosProps {
   video: VideoItem;
@@ -22,13 +23,14 @@ const FETCH_HITS = 16;
 async function fetchGroup(
   keyword: string,
   title: string,
-  exclude: Set<string>
+  exclude: Set<string>,
+  moreHref: string = searchHref(keyword)
 ): Promise<RelatedGroup | null> {
   try {
     const result = await fetchVideos({ keyword, sort: 'rank', hits: FETCH_HITS });
     const items = result.items.filter((v) => !exclude.has(v.content_id)).slice(0, PER_GROUP);
     if (items.length === 0) return null;
-    return { title, moreHref: `/?q=${encodeURIComponent(keyword)}`, items };
+    return { title, moreHref, items };
   } catch {
     return null;
   }
@@ -40,7 +42,7 @@ export default async function RelatedVideos({ video, t }: RelatedVideosProps) {
   const jobs: Array<Promise<RelatedGroup | null>> = [];
 
   const actress = video.actresses[0];
-  if (actress) jobs.push(fetchGroup(actress, t.relatedByActress(actress), exclude));
+  if (actress) jobs.push(fetchGroup(actress, t.relatedByActress(actress), exclude, actressHref(actress)));
 
   if (video.series) {
     jobs.push(fetchGroup(video.series, t.relatedBySeries(video.series), exclude));

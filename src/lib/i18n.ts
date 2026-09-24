@@ -74,6 +74,18 @@ export const translations = {
     relatedByMaker: (name: string) => `${name}の人気作品`,
     seeMore: 'もっと見る',
     loadingResults: '読み込み中...',
+    // Actress page
+    actressPageTitle: (name: string) => `${name}の無料サンプル動画一覧`,
+    actressPageDescription: (name: string) =>
+      `${name}が出演するFANZAの無料サンプル動画を広告なしでまとめて視聴。人気順・新着順で探せます。`,
+    actressHeading: (name: string) => `${name} の作品`,
+    profileHeight: '身長',
+    profileSize: 'スリーサイズ',
+    profileBirthday: '誕生日',
+    profileBlood: '血液型',
+    profileFrom: '出身',
+    profileHobby: '趣味',
+    actressIndex: '女優',
   },
   en: {
     siteName: 'SAKUSHIKO',
@@ -148,6 +160,18 @@ export const translations = {
     relatedByMaker: (name: string) => `Popular from ${name}`,
     seeMore: 'See more',
     loadingResults: 'Loading...',
+    // Actress page
+    actressPageTitle: (name: string) => `${name} - Free Sample Videos`,
+    actressPageDescription: (name: string) =>
+      `Watch free official FANZA sample videos starring ${name}, ad-free. Sort by popularity or release date.`,
+    actressHeading: (name: string) => `Videos starring ${name}`,
+    profileHeight: 'Height',
+    profileSize: 'Measurements',
+    profileBirthday: 'Birthday',
+    profileBlood: 'Blood type',
+    profileFrom: 'From',
+    profileHobby: 'Hobby',
+    actressIndex: 'Actress',
   },
 } as const;
 

@@ -5,6 +5,7 @@ import { fetchVideoById } from '@/lib/api';
 import VideoPlayer from '@/components/VideoPlayer';
 import RelatedVideos from '@/components/RelatedVideos';
 import VideoGridSkeleton from '@/components/VideoGridSkeleton';
+import { actressHref } from '@/lib/links';
 import { getTranslations } from '@/lib/i18n';
 import { getLocale } from '@/lib/locale';
 import type { Metadata } from 'next';
@@ -189,7 +190,7 @@ export default async function VideoDetailPage({ params, searchParams }: PageProp
                 {video.actresses.map((actress) => (
                   <Link
                     key={actress}
-                    href={`/?q=${encodeURIComponent(actress)}`}
+                    href={actressHref(actress)}
                     className="text-sm text-accent hover:text-accent-hover active:opacity-70 transition-colors font-medium"
                   >
                     {actress}
