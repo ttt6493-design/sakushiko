@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Geist } from 'next/font/google';
+import { Analytics } from '@vercel/analytics/next';
 import './globals.css';
 import Header from '@/components/Header';
 import AgeGate from '@/components/AgeGate';
@@ -87,6 +88,8 @@ export default async function RootLayout({
             </p>
           </div>
         </footer>
+        {/* Vercel Web Analytics: visitors and referrers (e.g. traffic from X) */}
+        <Analytics />
       </body>
     </html>
   );
