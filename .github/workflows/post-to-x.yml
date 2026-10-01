@@ -1,9 +1,10 @@
 name: Post to X
 
 on:
-  schedule:
-    # 21:00 JST daily (12:00 UTC)
-    - cron: '0 12 * * *'
+  # Daily schedule paused 2026-10-01: a sensitive-flagged new account got
+  # almost no views, so the $0.20/post was not paying off. To resume, restore:
+  # schedule:
+  #   - cron: '0 12 * * *'   # 21:00 JST
   workflow_dispatch:
     inputs:
       dry_run:
